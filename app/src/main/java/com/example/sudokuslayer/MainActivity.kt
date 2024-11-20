@@ -22,14 +22,13 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val testGrid = List(81) { 0 }
         setContent {
             SudokuSlayerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
                         SudokuGrid(
-                            gridValues = buildList(9) {
-                                (1..9).toList()
-                            },
+                            gridValues = testGrid,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
