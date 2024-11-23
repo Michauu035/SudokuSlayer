@@ -1,7 +1,9 @@
 package com.example.sudokuslayer.domain.model
 
+import com.example.sudokuslayer.domain.data.SudokuGrid
+
 interface SudokuGenerator {
-    fun createEmptyGrid(): Array<IntArray>
-    fun fillGrid(grid: Array<IntArray>): Array<IntArray>
-    fun validateGrid(grid: Array<IntArray>): Boolean
+    fun createEmptyGrid(): SudokuGrid
+    fun fillGrid(grid: SudokuGrid): SudokuGrid
+    fun validateGrid(grid: SudokuGrid): Boolean
 }

@@ -18,8 +18,8 @@ class SudokuGeneratorTest {
             intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
             intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
         )
-        val grid = generator.createEmptyGrid()
+        val sudoku = generator.createEmptyGrid()
 
-        assertArrayEquals(expected, grid)
+        assertArrayEquals(expected, sudoku.grid)
     }
 }

@@ -1,16 +1,18 @@
 package com.example.sudokuslayer.domain.model
 
+import com.example.sudokuslayer.domain.data.SudokuGrid
+
 class ClassicSudokuGenerator : SudokuGenerator {
-    override fun createEmptyGrid(): Array<IntArray> {
+    override fun createEmptyGrid(): SudokuGrid {
         val grid = Array(9) { IntArray(9) { 0 } }
-        return grid;
+        return SudokuGrid(grid);
     }
 
-    override fun fillGrid(grid: Array<IntArray>): Array<IntArray> {
-        TODO("Not yet implemented")
+    override fun fillGrid(sudoku: SudokuGrid): SudokuGrid {
+        TODO() 
     }
 
-    override fun validateGrid(grid: Array<IntArray>): Boolean {
+    override fun validateGrid(sudoku: SudokuGrid): Boolean {
         TODO("Not yet implemented")
     }
 }
