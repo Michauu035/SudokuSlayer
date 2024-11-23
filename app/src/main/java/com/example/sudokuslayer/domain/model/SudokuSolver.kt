@@ -7,4 +7,5 @@ interface SudokuSolver {
     fun checkColumn(col: IntArray): Boolean
     fun checkSubgrid(subgrid: Array<IntArray>): Boolean
     fun isValidMove(sudoku: SudokuGrid, rowNum: Int, colNum: Int, num: Int): Boolean
+    fun isValidSolution(sudoku: SudokuGrid): Boolean
 }

@@ -28,7 +28,7 @@ class ClassicSudokuSolver : SudokuSolver {
     ): Boolean {
         val row = sudoku.getRow(rowNum)
         val col = sudoku.getCol(colNum)
-        val subgrid = sudoku.getSubgrid(colNum, rowNum).flatMap { it.asList() }
+        val subgrid = sudoku.getSubgrid(rowNum, colNum).flatMap { it.asList() }
 
         if (num in row)
             return false
@@ -37,6 +37,21 @@ class ClassicSudokuSolver : SudokuSolver {
         if (num in subgrid)
             return false
 
+        return true
+    }
+
+    override fun isValidSolution(sudoku: SudokuGrid): Boolean {
+        for(i in 0..8){
+            if (!checkRow(sudoku.getRow(i))) return false
+        }
+        for (i in 0..8){
+            if (!checkColumn(sudoku.getCol(i))) return false
+        }
+        for (row in 0..6 step 3){
+            for (col in 0..6 step 3){
+                if (!checkSubgrid(sudoku.getSubgrid(row, col))) return false
+            }
+        }
         return true
     }
 }
