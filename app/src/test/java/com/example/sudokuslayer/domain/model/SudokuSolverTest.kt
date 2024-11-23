@@ -1,9 +1,11 @@
 package com.example.sudokuslayer.domain.model
 
+import com.example.sudokuslayer.domain.data.SudokuGrid
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import kotlin.math.exp
 
 @RunWith(Parameterized::class)
 class SudokuSolverRowTest(
@@ -86,5 +88,50 @@ class SudokuSolverSubgridTest(
     @Test
     fun `should validate subgrid correctly`(){
         assertEquals(expected, solver.checkSubgrid(subgrid))
+    }
+}
+
+class SudokuSolverValidMoveTest(){
+    private val sudoku = SudokuGrid(
+        arrayOf(
+            intArrayOf(5, 3, 0, 0, 7, 0, 0, 0, 0),
+            intArrayOf(6, 0, 0, 1, 9, 5, 0, 0, 0),
+            intArrayOf(0, 9, 8, 0, 0, 0, 0, 6, 0),
+            intArrayOf(8, 0, 0, 0, 6, 0, 0, 0, 3),
+            intArrayOf(4, 0, 0, 8, 0, 3, 0, 0, 1),
+            intArrayOf(7, 0, 0, 0, 2, 0, 0, 0, 6),
+            intArrayOf(0, 6, 0, 0, 0, 0, 2, 8, 0),
+            intArrayOf(0, 0, 0, 4, 1, 9, 0, 0, 5),
+            intArrayOf(0, 0, 0, 0, 8, 0, 0, 7, 9)
+        )
+    )
+    private val solver = ClassicSudokuSolver()
+
+    @Test
+    fun `should return false for incorrect move in row`(){
+        val expected = false
+        val result = solver.isValidMove(sudoku, 0, 2, 3)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `should return false for incorrect move on column`(){
+        val expected = false
+        val result = solver.isValidMove(sudoku, 2, 4, 7)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `should return false for incorrect move on subgrid`(){
+        val expected = false
+        val result = solver.isValidMove(sudoku, 1, 1, 6)
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun `should return true for correct move`(){
+        val expected = true
+        val result = solver.isValidMove(sudoku, 0, 2, 1)
+        assertEquals(expected, result)
     }
 }

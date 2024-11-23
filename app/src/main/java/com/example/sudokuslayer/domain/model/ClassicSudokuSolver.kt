@@ -21,11 +21,22 @@ class ClassicSudokuSolver : SudokuSolver {
     }
 
     override fun isValidMove(
-        grid: SudokuGrid,
+        sudoku: SudokuGrid,
         rowNum: Int,
         colNum: Int,
         num: Int
     ): Boolean {
-        TODO()
+        val row = sudoku.getRow(rowNum)
+        val col = sudoku.getCol(colNum)
+        val subgrid = sudoku.getSubgrid(colNum, rowNum).flatMap { it.asList() }
+
+        if (num in row)
+            return false
+        if (num in col)
+            return false
+        if (num in subgrid)
+            return false
+
+        return true
     }
 }
