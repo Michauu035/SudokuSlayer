@@ -40,7 +40,7 @@ class ClassicSudokuSolver : SudokuSolver {
         return true
     }
 
-    override fun isValidSolution(sudoku: SudokuGrid): Boolean {
+    override fun checkGrid(sudoku: SudokuGrid): Boolean {
         for(i in 0..8){
             if (!checkRow(sudoku.getRow(i))) return false
         }
@@ -53,5 +53,9 @@ class ClassicSudokuSolver : SudokuSolver {
             }
         }
         return true
+    }
+
+    override fun isValidSolution(sudokuGrid: SudokuGrid): Boolean {
+        return checkGrid(sudokuGrid) && 0 !in sudokuGrid.getGridAsArray().flatMap { it.asList() }
     }
 }

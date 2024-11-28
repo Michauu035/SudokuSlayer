@@ -10,17 +10,26 @@ class ClassicSudokuGenerator : SudokuGenerator {
         return grid
     }
 
-    fun fillGrid(sudoku: SudokuGrid, seed: Long): Boolean{
+    fun fillGrid(sudoku: SudokuGrid, seed: Long): Boolean {
         val solver = ClassicSudokuSolver()
-        for (row in 0..8){
-            for (col in 0..8){
+        for (row in 0..8) {
+            for (col in 0..8) {
+                // Find empty cell
                 if (sudoku[row, col] == 0) {
-                    val randomNumbers = (1..9).shuffled(Random(seed))
-                    for (num in randomNumbers) {
-                        if (solver.isValidMove(sudoku, row, col, num))
-                        {
+                    val numbers = (1..9).shuffled(Random(seed))
+
+                    // Find number that is safe to place in cell
+                    for (num in numbers) {
+                        if (
+                            solver.isValidMove(
+                                sudoku = sudoku,
+                                rowNum = row,
+                                colNum = col,
+                                num = num
+                            )
+                        ) {
                             sudoku[row, col] = num
-                            if (fillGrid(sudoku, seed)){
+                            if (fillGrid(sudoku, seed)) {
                                 return true
                             }
                             sudoku[row, col] = 0

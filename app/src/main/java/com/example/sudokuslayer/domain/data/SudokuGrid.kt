@@ -62,4 +62,7 @@ class SudokuGrid() {
         return data.joinToString("\n") {row -> row.joinToString(", ")}
     }
 
+    fun getGridAsArray(): Array<IntArray> {
+        return data
+    }
 }
