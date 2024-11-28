@@ -6,39 +6,33 @@ import kotlin.random.Random
 class ClassicSudokuGenerator : SudokuGenerator {
     override fun generateSudokuGrid(seed: Long): SudokuGrid {
         val grid = SudokuGrid()
-        fillGrid(grid, seed)
+        ClassicSudokuSolver.fillGrid(grid, seed)
         return grid
     }
 
-    fun fillGrid(sudoku: SudokuGrid, seed: Long): Boolean {
-        val solver = ClassicSudokuSolver()
-        for (row in 0..8) {
-            for (col in 0..8) {
-                // Find empty cell
-                if (sudoku[row, col] == 0) {
-                    val numbers = (1..9).shuffled(Random(seed))
+    override fun removeCells(
+        grid: SudokuGrid,
+        cellsToRemove: Int
+    ): SudokuGrid {
+        val removedGrid: Array<IntArray> = grid.getGridAsArray().map { it.clone() }.toTypedArray()
+        var removedCount = 0
 
-                    // Find number that is safe to place in cell
-                    for (num in numbers) {
-                        if (
-                            solver.isValidMove(
-                                sudoku = sudoku,
-                                rowNum = row,
-                                colNum = col,
-                                num = num
-                            )
-                        ) {
-                            sudoku[row, col] = num
-                            if (fillGrid(sudoku, seed)) {
-                                return true
-                            }
-                            sudoku[row, col] = 0
-                        }
-                    }
-                    return false
+        while (removedCount < cellsToRemove) {
+            val row = Random.nextInt(9)
+            val col = Random.nextInt(9)
+
+            if (removedGrid[row][col] != 0) {
+                val backup = removedGrid[row][col]
+
+                removedGrid[row][col] = 0
+                if (!ClassicSudokuSolver.hasUniqueSolution(SudokuGrid(removedGrid))) {
+                    removedGrid[row][col] = backup
+                } else {
+                    removedCount++
                 }
             }
         }
-        return true
+
+        return SudokuGrid(removedGrid)
     }
 }

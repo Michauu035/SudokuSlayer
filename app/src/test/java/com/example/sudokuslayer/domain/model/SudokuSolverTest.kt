@@ -11,7 +11,7 @@ class SudokuSolverRowTest(
     private val row: IntArray,
     private val expected: Boolean
 ) {
-    private val solver = ClassicSudokuSolver()
+    private val solver = ClassicSudokuSolver
 
     companion object {
         @JvmStatic
@@ -82,7 +82,7 @@ class SudokuSolverSubgridTest(
         }
     }
 
-    private val solver = ClassicSudokuSolver()
+    private val solver = ClassicSudokuSolver
 
     @Test
     fun `should validate subgrid correctly`(){
@@ -104,7 +104,7 @@ class SudokuSolverValidMoveTest(){
             intArrayOf(0, 0, 0, 0, 8, 0, 0, 7, 9)
         )
     )
-    private val solver = ClassicSudokuSolver()
+    private val solver = ClassicSudokuSolver
 
     @Test
     fun `should return false for incorrect move in row`(){
@@ -131,6 +131,29 @@ class SudokuSolverValidMoveTest(){
     fun `should return true for correct move`(){
         val expected = true
         val result = solver.isValidMove(sudoku, 0, 2, 1)
+        assertEquals(expected, result)
+    }
+}
+
+class SudokuSolverFillTest(){
+
+    @Test
+    fun `should fill partially full grid`(){
+        val grid = arrayOf(
+            intArrayOf(5, 3, 0, 0, 7, 0, 0, 0, 0),
+            intArrayOf(6, 0, 0, 1, 9, 5, 0, 0, 0),
+            intArrayOf(0, 9, 8, 0, 0, 0, 0, 6, 0),
+            intArrayOf(8, 0, 0, 0, 6, 0, 0, 0, 3),
+            intArrayOf(4, 0, 0, 8, 0, 3, 0, 0, 1),
+            intArrayOf(7, 0, 0, 0, 2, 0, 0, 0, 6),
+            intArrayOf(0, 6, 0, 0, 0, 0, 2, 8, 0),
+            intArrayOf(0, 0, 0, 4, 1, 9, 0, 0, 5),
+            intArrayOf(0, 0, 0, 0, 8, 0, 0, 7, 9)
+        )
+        val sudoku = SudokuGrid(grid)
+        ClassicSudokuSolver.fillGrid(sudoku, 0)
+        val expected = true
+        val result = ClassicSudokuSolver.isValidSolution(sudoku)
         assertEquals(expected, result)
     }
 }
