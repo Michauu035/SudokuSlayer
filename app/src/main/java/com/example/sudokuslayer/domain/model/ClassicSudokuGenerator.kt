@@ -12,14 +12,16 @@ class ClassicSudokuGenerator : SudokuGenerator {
 
     override fun removeCells(
         grid: SudokuGrid,
-        cellsToRemove: Int
+        cellsToRemove: Int,
+        seed: Long
     ): SudokuGrid {
         val removedGrid: Array<IntArray> = grid.getGridAsArray().map { it.clone() }.toTypedArray()
         var removedCount = 0
+        val random = Random(seed)
 
         while (removedCount < cellsToRemove) {
-            val row = Random.nextInt(9)
-            val col = Random.nextInt(9)
+            val row = random.nextInt(9)
+            val col = random.nextInt(9)
 
             if (removedGrid[row][col] != 0) {
                 val backup = removedGrid[row][col]

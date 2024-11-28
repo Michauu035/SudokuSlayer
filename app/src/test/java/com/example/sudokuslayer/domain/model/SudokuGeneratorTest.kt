@@ -15,8 +15,10 @@ class SudokuGeneratorTest {
 
     @Test
     fun `should generate identical full grids given the same seed`(){
-        val grid1 = generator.generateSudokuGrid(0)
-        val grid2 = generator.generateSudokuGrid(0)
+        var grid1 = generator.generateSudokuGrid(0)
+        grid1 = generator.removeCells(grid1, 53, 0)
+        var grid2 = generator.generateSudokuGrid(0)
+        grid2 = generator.removeCells(grid2, 53, 0)
         assertEquals(grid1.toString(), grid2.toString())
     }
 }
