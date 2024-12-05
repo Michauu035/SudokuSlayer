@@ -105,4 +105,14 @@ class SudokuGrid() {
             data.clone()
         )
     }
+
+    fun addAttribute(row: Int, col: Int, attribute: CellAttributes) {
+        require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
+        data[row * 9 + col].attributes.add(attribute)
+    }
+
+    fun removeAttribute(row: Int, col: Int, attribute: CellAttributes) {
+        require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
+        data[row * 9 + col].attributes.remove(attribute)
+    }
 }

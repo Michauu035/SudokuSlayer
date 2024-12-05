@@ -1,24 +1,27 @@
-package com.example.sudokuslayer.presentation.ui.game
+package com.example.sudokuslayer.presentation.screen.game.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.sudokuslayer.domain.data.CellAttributes
 import com.example.sudokuslayer.domain.data.SudokuGrid
-import com.example.sudokuslayer.domain.model.ClassicSudokuGenerator
 
 @Composable
-fun SudokuBoard(numbers: Array<Int>, modifier: Modifier = Modifier) {
+fun SudokuBoard(
+	sudoku: SudokuGrid,
+	onCellClick: (Int, Int) -> Unit,
+	modifier: Modifier = Modifier
+) {
 	val cellBorderColor = MaterialTheme.colorScheme.onBackground
 	val subgridBorderColor = MaterialTheme.colorScheme.primary
 
@@ -48,11 +51,13 @@ fun SudokuBoard(numbers: Array<Int>, modifier: Modifier = Modifier) {
 				}
 			}
 	) {
-		items(numbers) { number ->
+		items(sudoku.getArray()) { cell ->
 			Box() {
 				SudokuCell(
-					number = number,
-					onClick = { }
+					cellData = cell,
+					onClick = { onCellClick(cell.row, cell.col) },
+					isGenerated = cell.attributes.contains(CellAttributes.GENERATED),
+					selected = cell.attributes.contains(CellAttributes.SELECTED)
 				)
 			}
 		}
