@@ -5,7 +5,15 @@ import kotlin.random.Random
 
 class SudokuGrid() {
     private var data: Array<SudokuCellData> = Array(81) { SudokuCellData(it / 9, it % 9, 0) }
-    var seed: Long = 0L
+    var seed: Long? = null
+        set(value) {
+            if(value != null)
+                random = Random(value)
+            value
+        }
+    var random: Random = Random(0)
+        private set
+
 
     constructor(grid: Array<IntArray>) : this() {
         grid.forEachIndexed { i, row ->
@@ -17,6 +25,11 @@ class SudokuGrid() {
 				)
             }
         }
+    }
+
+    constructor(seed: Long) : this() {
+        this.seed = seed
+        random = Random(seed)
     }
 
     constructor(grid: Array<SudokuCellData>) : this() {

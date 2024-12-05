@@ -5,16 +5,14 @@ import kotlin.random.Random
 
 class ClassicSudokuGenerator : SudokuGenerator {
     override fun createSudoku(cellsToRemove: Int, seed: Long): SudokuGrid {
-        var grid = SudokuGrid()
-        grid.seed = seed
+        var grid = SudokuGrid(seed)
         ClassicSudokuSolver.fillGrid(grid)
         grid = removeCells(grid, cellsToRemove)
         return grid
     }
 
     override fun generateSudokuGrid(seed: Long): SudokuGrid {
-        val grid = SudokuGrid()
-        grid.seed = seed
+        val grid = SudokuGrid(seed)
         ClassicSudokuSolver.fillGrid(grid)
         return grid
     }
@@ -25,7 +23,7 @@ class ClassicSudokuGenerator : SudokuGenerator {
     ): SudokuGrid {
         val removedGrid: SudokuGrid = grid.clone()
         var removedCount = 0
-        val random = Random(grid.seed)
+        val random = grid.random
 
         while (removedCount < cellsToRemove) {
             val row = random.nextInt(9)
