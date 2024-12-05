@@ -39,7 +39,7 @@ class SudokuGridTest {
             intArrayOf(4, 1, 9),
             intArrayOf(2, 8, 6),
         )
-        val result = grid.getSubgrid(5, 7)
+        val result = grid.getSubgrid(8, 5)
         assertArrayEquals(expected, result)
     }
 }

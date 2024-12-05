@@ -151,7 +151,7 @@ class SudokuSolverFillTest(){
             intArrayOf(0, 0, 0, 0, 8, 0, 0, 7, 9)
         )
         val sudoku = SudokuGrid(grid)
-        ClassicSudokuSolver.fillGrid(sudoku, 0)
+        ClassicSudokuSolver.fillGrid(sudoku)
         val expected = true
         val result = ClassicSudokuSolver.isValidSolution(sudoku)
         assertEquals(expected, result)

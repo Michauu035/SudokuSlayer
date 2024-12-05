@@ -163,7 +163,9 @@ object ClassicSudokuSolver : SudokuSolver {
      * ```
      */
     override fun isValidSolution(sudokuGrid: SudokuGrid): Boolean {
-        return checkGrid(sudokuGrid) && 0 !in sudokuGrid.getGridAsArray().flatMap { it.asList() }
+        val validGrid = checkGrid(sudokuGrid)
+        val noZeros = 0 !in sudokuGrid.getArray().map { it.number }
+        return validGrid && noZeros
     }
 
     /**
@@ -191,25 +193,27 @@ object ClassicSudokuSolver : SudokuSolver {
      * - The algorithm uses randomization for variety, which makes grid generation unpredictable and diverse.
      *
      * @param sudoku the [SudokuGrid] to fill.
-     * @param seed a random seed to shuffle the numbers, ensuring different puzzle generations.
      * @return `true` if the grid was successfully filled, `false` if it was not possible.
      *
      * **Example Usage:**
      * ```kotlin
      * val sudokuGrid = SudokuGrid()
-     * val success = fillGrid(sudokuGrid, 12345L) // Tries to fill the grid with the seed 12345
+     * val success = fillGrid(sudokuGrid) // Tries to fill the grid
      * println(success) // Output: true or false
      * ```
      */
-    override fun fillGrid(sudoku: SudokuGrid, seed: Long): Boolean {
+    override fun fillGrid(sudoku: SudokuGrid): Boolean {
+        val random = Random(sudoku.seed)
         for (row in 0..8) {
             for (col in 0..8) {
                 // Find empty cell
-                if (sudoku[row, col] == 0) {
-                    val numbers = (1..9).shuffled(Random(seed))
+                if (sudoku[row, col].number == 0) {
+                    val numbers = (1..9).toList()
+                    val shuffled = numbers.shuffled(random)
+                    println(shuffled)
 
                     // Find number that is safe to place in cell
-                    for (num in numbers) {
+                    for (num in shuffled) {
                         if (
                             isValidMove(
                                 sudoku = sudoku,
@@ -219,7 +223,7 @@ object ClassicSudokuSolver : SudokuSolver {
                             )
                         ) {
                             sudoku[row, col] = num
-                            if (fillGrid(sudoku, seed)) {
+                            if (fillGrid(sudoku)) {
                                 return true
                             }
                             sudoku[row, col] = 0
@@ -260,7 +264,7 @@ object ClassicSudokuSolver : SudokuSolver {
         fun solve(grid: SudokuGrid): Boolean{
             for (row in 0..8){
                 for (col in 0..8){
-                    if (grid[row, col] == 0) {
+                    if (grid[row, col].number == 0) {
                         for (num in 1..9) {
                             if (isValidMove(grid, row, col, num)){
                                 grid[row, col] = num

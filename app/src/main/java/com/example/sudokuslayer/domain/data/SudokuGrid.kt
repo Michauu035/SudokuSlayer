@@ -1,25 +1,39 @@
 package com.example.sudokuslayer.domain.data
 
 import kotlin.math.floor
+import kotlin.random.Random
 
 class SudokuGrid() {
-    private var data: Array<IntArray> = Array(9) { IntArray(9) { 0 } }
+    private var data: Array<SudokuCellData> = Array(81) { SudokuCellData(it / 9, it % 9, 0) }
+    var seed: Long = 0L
 
     constructor(grid: Array<IntArray>) : this() {
+        grid.forEachIndexed { i, row ->
+            row.forEachIndexed { j, num ->
+				data[i*9 + j] = SudokuCellData(
+					row = i,
+					col = j,
+					number = num
+				)
+            }
+        }
+    }
+
+    constructor(grid: Array<SudokuCellData>) : this() {
         data = grid
     }
 
-    operator fun get(row: Int, col: Int): Int {
+    operator fun get(row: Int, col: Int): SudokuCellData {
         require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
-        return data[row][col]
+        return data[row * 9 + col]
     }
 
     operator fun set(row: Int, col: Int, value: Int) {
         require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
-        data[row][col] = value
+        data[row * 9 + col] = SudokuCellData(row = row, col = col, number = value)
     }
 
-    operator fun iterator(): Iterator<IntArray> {
+    operator fun iterator(): Iterator<SudokuCellData> {
         return data.iterator()
     }
 
@@ -30,7 +44,7 @@ class SudokuGrid() {
      */
     fun getRow(row: Int): IntArray {
         require(row in 0 .. 8) { "Index out of bounds" }
-        return data[row]
+        return data.filter { it.row == row }.map { it.number }.toIntArray()
     }
 
     /**
@@ -40,7 +54,7 @@ class SudokuGrid() {
      */
     fun getCol(col: Int): IntArray {
         require(col in 0 .. 8) { "Index out of bounds" }
-        val col = data.map { it[col] }.toIntArray()
+        val col = data.filter { it.col == col }.map { it.number }.toIntArray()
         return col
     }
 
@@ -54,15 +68,28 @@ class SudokuGrid() {
         require(rowNum in 0 .. 8 && colNum in 0 .. 8) { "Index out of bounds" }
         val colStart: Int = floor(colNum / 3.0).toInt() * 3
         val rowStart: Int = floor(rowNum / 3.0).toInt() * 3
-        val subgrid = data.slice(rowStart..rowStart+2).map { it.slice(colStart..colStart+2).toIntArray() }.toTypedArray()
+        val filteredCol = data.filter { it.col >= colStart && it.col <= colStart + 2 }
+        val subgrid: Array<IntArray> = arrayOf(
+            filteredCol.filter { it.row == rowStart }.map { it.number }.toIntArray(),
+            filteredCol.filter { it.row == rowStart + 1 }.map { it.number }.toIntArray(),
+            filteredCol.filter { it.row == rowStart + 2 }.map { it.number }.toIntArray()
+        )
         return subgrid
     }
 
     override fun toString(): String{
-        return data.joinToString("\n") {row -> row.joinToString(", ")}
+        val rows = data.groupBy { it.row }.values
+        val grid = rows.joinToString("\n") { it.joinToString(", ") { it.number.toString() } }
+        return grid
     }
 
-    fun getGridAsArray(): Array<IntArray> {
+    fun getArray(): Array<SudokuCellData> {
         return data
+    }
+
+    fun clone(): SudokuGrid {
+        return SudokuGrid(
+            data.clone()
+        )
     }
 }

@@ -11,5 +11,5 @@ interface SudokuSolver {
     fun checkGrid(sudoku: SudokuGrid): Boolean
     fun isValidSolution(sudokuGrid: SudokuGrid): Boolean
     fun hasUniqueSolution(sudokuGrid: SudokuGrid): Boolean
-    fun fillGrid(sudokuGrid: SudokuGrid, seed: Long = Random.nextLong()) : Boolean
+    fun fillGrid(sudokuGrid: SudokuGrid) : Boolean
 }
