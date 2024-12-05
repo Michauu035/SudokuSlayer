@@ -1,45 +1,55 @@
 package com.example.sudokuslayer.domain.model
 
+import com.example.sudokuslayer.domain.data.CellAttributes
 import com.example.sudokuslayer.domain.data.SudokuGrid
-import kotlin.random.Random
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class ClassicSudokuGenerator : SudokuGenerator {
     override fun createSudoku(cellsToRemove: Int, seed: Long): SudokuGrid {
-        var grid = SudokuGrid(seed)
-        ClassicSudokuSolver.fillGrid(grid)
-        grid = removeCells(grid, cellsToRemove)
-        return grid
+        var sudoku = SudokuGrid(seed)
+        ClassicSudokuSolver.fillGrid(sudoku)
+        sudoku = removeCells(sudoku, cellsToRemove)
+        for (cell in sudoku) {
+            if (cell.number != 0)
+                cell.attributes += CellAttributes.GENERATED
+        }
+        return sudoku
     }
 
-    override fun generateSudokuGrid(seed: Long): SudokuGrid {
-        val grid = SudokuGrid(seed)
-        ClassicSudokuSolver.fillGrid(grid)
-        return grid
+    override fun generateFullSudokuGrid(seed: Long): SudokuGrid {
+        val sudoku = SudokuGrid(seed)
+        ClassicSudokuSolver.fillGrid(sudoku)
+        return sudoku
     }
+
+    // TODO: remove in batches to improve performance
 
     override fun removeCells(
-        grid: SudokuGrid,
+        sudoku: SudokuGrid,
         cellsToRemove: Int,
     ): SudokuGrid {
-        val removedGrid: SudokuGrid = grid.clone()
+        val removedGrid: SudokuGrid = sudoku.clone()
+        val totalCells = 81
         var removedCount = 0
-        val random = grid.random
+        val cellIndices = (0 until totalCells).shuffled(sudoku.random)
 
-        while (removedCount < cellsToRemove) {
-            val row = random.nextInt(9)
-            val col = random.nextInt(9)
+            for (index in cellIndices) {
+                if (removedCount >= cellsToRemove) break
 
-            if (removedGrid[row, col].number != 0) {
-                val backup = removedGrid[row, col].number
+                val row = index / 9
+                val col = index % 9
+                val orginalValue = removedGrid[row, col].number
 
                 removedGrid[row, col] = 0
+
                 if (!ClassicSudokuSolver.hasUniqueSolution(removedGrid)) {
-                    removedGrid[row, col] = backup
+                    removedGrid[row, col] = orginalValue
                 } else {
                     removedCount++
                 }
             }
-        }
 
         return removedGrid
     }

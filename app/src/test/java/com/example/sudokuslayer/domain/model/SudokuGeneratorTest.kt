@@ -6,12 +6,20 @@ import org.junit.Test
 class SudokuGeneratorTest {
     private val generator = ClassicSudokuGenerator()
     @Test
-    fun `should generate valid sudoku grid`(){
+    fun `should generate valid full sudoku grid`(){
         val expected = true
-        val grid = generator.generateSudokuGrid(82391931281823L)
+        val grid = generator.generateFullSudokuGrid(12345L)
         println(grid.toString())
         val result = ClassicSudokuSolver.isValidSolution(grid)
         assertEquals(expected, result)
+    }
+
+    @Test
+    fun `should properly remove cells`() {
+        val cellsToRemove = 55
+        val grid = generator.createSudoku(cellsToRemove, 8153123L)
+        println(grid.toString())
+        assertEquals(cellsToRemove, grid.getArray().count { it.number == 0})
     }
 
     @Test

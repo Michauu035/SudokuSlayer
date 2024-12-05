@@ -256,7 +256,8 @@ object ClassicSudokuSolver : SudokuSolver {
 			}
 			return true
 		}
-		solve(sudoku)
+
+		solve(sudoku.clone())
 		return solutionCount == 1
 	}
 
