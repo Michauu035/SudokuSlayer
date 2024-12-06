@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.sudokuslayer.presentation.screen.game.SudokuGameViewModel.Event
 import com.example.sudokuslayer.presentation.screen.game.components.KeyPad
-import com.example.sudokuslayer.presentation.screen.game.components.KeyPadParts.NumberPad
 import com.example.sudokuslayer.presentation.screen.game.components.SudokuBoard
 
 @Composable
@@ -36,9 +35,15 @@ fun SudokuGameScreen(viewModel: SudokuGameViewModel, modifier: Modifier = Modifi
 		)
 		KeyPad(
 			onNumberClick = { viewModel.onEvent(Event.InputNumber(it)) },
-			onClearClick =  { viewModel.onEvent(Event.ClearCell) },
+			onClearClick = { viewModel.onEvent(Event.ClearCell) },
 			onUndoClick = { viewModel.onEvent(Event.Undo) },
-			onRedoClick = { viewModel.onEvent(Event.Redo) }
+			onRedoClick = { viewModel.onEvent(Event.Redo) },
+			onNumberSwitchClick = { },
+			onNoteSwitchClick = { },
+			onColorSwitchClick = { },
+			onHintClick = { viewModel.onEvent(Event.ShowHint) },
+			onShowMistakesClick = { viewModel.onEvent(Event.ShowMistakes) },
+			onResetClick = { viewModel.onEvent(Event.Reset) },
 		)
 	}
 }

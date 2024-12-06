@@ -1,11 +1,13 @@
 package com.example.sudokuslayer.presentation.screen.game.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.sudokuslayer.presentation.screen.game.components.KeyPadParts.ActionPad
-import com.example.sudokuslayer.presentation.screen.game.components.KeyPadParts.NumberPad
+import com.example.sudokuslayer.presentation.screen.game.components.keypadparts.ActionPad
+import com.example.sudokuslayer.presentation.screen.game.components.keypadparts.NumberPad
+import com.example.sudokuslayer.presentation.screen.game.components.keypadparts.VerticalActionPadLeft
+import com.example.sudokuslayer.presentation.screen.game.components.keypadparts.VerticalActionPadRight
 
 @Composable
 fun KeyPad(
@@ -13,15 +15,33 @@ fun KeyPad(
 	onClearClick: () -> Unit,
 	onUndoClick: () -> Unit,
 	onRedoClick: () -> Unit,
+	onNumberSwitchClick: () -> Unit,
+	onNoteSwitchClick: () -> Unit,
+	onColorSwitchClick: () -> Unit,
+	onHintClick: () -> Unit,
+	onShowMistakesClick: () -> Unit,
+	onResetClick: () -> Unit,
 ) {
-	Column {
-		NumberPad(
-			onButtonClick = onNumberClick,
+	Row() {
+		VerticalActionPadLeft(
+			onHintClick = onHintClick,
+			onShowMistakesClick = onShowMistakesClick,
+			onResetClick = onResetClick
 		)
-		ActionPad(
-			onClearClick = onClearClick,
-			onUndoClick = onUndoClick,
-			onRedoClick = onRedoClick
+		Column {
+			NumberPad(
+				onButtonClick = onNumberClick,
+			)
+			ActionPad(
+				onClearClick = onClearClick,
+				onUndoClick = onUndoClick,
+				onRedoClick = onRedoClick
+			)
+		}
+		VerticalActionPadRight(
+			onNumberSwitchClick = onNumberSwitchClick,
+			onNoteSwitchClick = onNoteSwitchClick,
+			onColorSwitchClick = onColorSwitchClick
 		)
 	}
 }
@@ -33,6 +53,12 @@ private fun KeyPadPreview() {
 		onNumberClick = { },
 		onClearClick = { },
 		onUndoClick = { },
-		onRedoClick = { }
+		onRedoClick = { },
+		onNumberSwitchClick = { },
+		onNoteSwitchClick = { },
+		onColorSwitchClick = { },
+		onHintClick = { },
+		onShowMistakesClick = { },
+		onResetClick = { }
 	)
 }

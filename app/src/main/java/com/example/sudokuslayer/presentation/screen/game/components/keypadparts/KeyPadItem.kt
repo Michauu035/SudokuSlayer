@@ -1,4 +1,4 @@
-package com.example.sudokuslayer.presentation.screen.game.components.KeyPadParts
+package com.example.sudokuslayer.presentation.screen.game.components.keypadparts
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,14 +24,12 @@ import androidx.compose.ui.unit.dp
 fun KeyPadItem(
 	text: String,
 	onClick: () -> Unit,
-	icon: ImageVector? = null,
-	iconContentDescription: String? = null,
+	icon: (@Composable () -> Unit)? = null,
 	bgColor: Color = MaterialTheme.colorScheme.primary,
 	textColor: Color = MaterialTheme.colorScheme.onPrimary,
-	modifier: Modifier = Modifier
 ) {
 	Box(
-		modifier = modifier
+		modifier = Modifier
 			.size(60.dp)
 			.clip(CircleShape)
 			.background(bgColor)
@@ -44,11 +42,7 @@ fun KeyPadItem(
 			horizontalAlignment = Alignment.CenterHorizontally,
 		) {
 			if (icon != null) {
-				Icon(
-					imageVector = icon,
-					contentDescription = if (iconContentDescription == null) "" else iconContentDescription,
-					tint = textColor
-				)
+				icon()
 			} else {
 				Text(
 					text = text,
@@ -73,7 +67,12 @@ private fun KeyboardItemNumberPreview() {
 private fun KeyboardItemIconPreview() {
 	KeyPadItem(
 		text = "5",
-		icon = Icons.Default.Clear,
+		icon = {
+			Icon(
+				imageVector = Icons.Default.Clear,
+				contentDescription = "clear"
+			)
+		},
 		bgColor = MaterialTheme.colorScheme.background,
 		textColor = MaterialTheme.colorScheme.onBackground,
 		onClick = { },

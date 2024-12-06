@@ -1,4 +1,4 @@
-package com.example.sudokuslayer.presentation.screen.game.components.KeyPadParts
+package com.example.sudokuslayer.presentation.screen.game.components.keypadparts
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,11 +8,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.sudokuslayer.R
 
 @Composable
 fun ActionPad(
@@ -20,14 +23,19 @@ fun ActionPad(
 	onUndoClick: () -> Unit,
 	onRedoClick: () -> Unit,
 ) {
-	val bgColor = MaterialTheme.colorScheme.background
-	val iconColor = MaterialTheme.colorScheme.onBackground
+	val bgColor = MaterialTheme.colorScheme.surfaceContainer
+	val iconColor = MaterialTheme.colorScheme.onSurface
 	Row(
 		modifier = Modifier.padding(horizontal = 8.dp)
 	) {
 		KeyPadItem(
 			text = "",
-			icon = Icons.AutoMirrored.Default.ArrowBack,
+			icon = {
+				Icon(
+					painter = painterResource(R.drawable.undo),
+					contentDescription = "Undo"
+				)
+			},
 			bgColor = bgColor,
 			textColor = iconColor,
 			onClick = onUndoClick
@@ -35,7 +43,12 @@ fun ActionPad(
 		Spacer(modifier = Modifier.width(8.dp))
 		KeyPadItem(
 			text = "",
-			icon = Icons.Default.Clear,
+			icon = {
+				Icon(
+					imageVector = Icons.Default.Clear,
+					contentDescription = "Clear"
+				)
+			},
 			bgColor = bgColor,
 			textColor = iconColor,
 			onClick = onClearClick
@@ -43,7 +56,12 @@ fun ActionPad(
 		Spacer(modifier = Modifier.width(8.dp))
 		KeyPadItem(
 			text = "",
-			icon = Icons.AutoMirrored.Default.ArrowForward,
+			icon = {
+				Icon(
+					painter = painterResource(R.drawable.redo),
+					contentDescription = "Redo"
+				)
+			},
 			bgColor = bgColor,
 			textColor = iconColor,
 			onClick = onRedoClick

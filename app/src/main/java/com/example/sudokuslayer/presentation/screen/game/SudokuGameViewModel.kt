@@ -30,6 +30,9 @@ class SudokuGameViewModel : ViewModel(){
 		data object ClearCell: Event
 		data object Undo: Event
 		data object Redo: Event
+		data object ShowHint: Event
+		data object ShowMistakes: Event
+		data object Reset: Event
 	}
 
 	fun onEvent(event: Event) {
@@ -46,12 +49,13 @@ class SudokuGameViewModel : ViewModel(){
 			is Event.ClearCell -> {
 				inputNumber(0)
 			}
-			is Event.Undo -> {
-
+			is Event.Undo -> { }
+			is Event.Redo -> { }
+			is Event.Reset -> {
+				resetGame()
 			}
-			is Event.Redo -> {
-
-			}
+			is Event.ShowHint -> { }
+			is Event.ShowMistakes -> { }
 		}
 	}
 
@@ -93,5 +97,9 @@ class SudokuGameViewModel : ViewModel(){
 				}
 			}
 		}
+	}
+
+	private fun resetGame() {
+
 	}
 }

@@ -1,4 +1,4 @@
-package com.example.sudokuslayer.presentation.screen.game.components.KeyPadParts
+package com.example.sudokuslayer.presentation.screen.game.components.keypadparts
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,7 +35,7 @@ fun NumberPad(
 				for (number in row) {
 					KeyPadItem(
 						text = number.toString(),
-						onClick = { onButtonClick(number) },
+						onClick = { onButtonClick(number) }
 					)
 					Spacer(modifier = Modifier.width(8.dp))
 				}
