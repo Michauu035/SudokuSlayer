@@ -43,7 +43,9 @@ class SudokuGrid() {
 
     operator fun set(row: Int, col: Int, value: Int) {
         require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
-        data[row * 9 + col] = SudokuCellData(row = row, col = col, number = value)
+        data[row * 9 + col] = data[row * 9 + col].copy(
+            number = value
+        )
     }
 
     operator fun iterator(): Iterator<SudokuCellData> {

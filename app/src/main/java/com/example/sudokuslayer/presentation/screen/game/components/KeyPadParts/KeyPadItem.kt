@@ -32,7 +32,7 @@ fun KeyPadItem(
 ) {
 	Box(
 		modifier = modifier
-			.size(50.dp)
+			.size(60.dp)
 			.clip(CircleShape)
 			.background(bgColor)
 			.clickable(

@@ -26,6 +26,10 @@ class SudokuGameViewModel : ViewModel(){
 	sealed interface Event {
 		data object GenerateSudoku: Event
 		data class SelectCell(val row: Int, val col: Int): Event
+		data class InputNumber(val number: Int): Event
+		data object ClearCell: Event
+		data object Undo: Event
+		data object Redo: Event
 	}
 
 	fun onEvent(event: Event) {
@@ -35,6 +39,18 @@ class SudokuGameViewModel : ViewModel(){
 			}
 			is Event.SelectCell -> {
 				selectCell(event.row, event.col)
+			}
+			is Event.InputNumber -> {
+				inputNumber(event.number)
+			}
+			is Event.ClearCell -> {
+				inputNumber(0)
+			}
+			is Event.Undo -> {
+
+			}
+			is Event.Redo -> {
+
 			}
 		}
 	}
@@ -61,6 +77,21 @@ class SudokuGameViewModel : ViewModel(){
 				sudoku = updatedSudoku,
 				selectedCell = updatedSudoku[row, col]
 			)
+		}
+	}
+
+	private fun inputNumber(number: Int) {
+		val updatedSudoku = _uiState.value.sudoku.clone()
+		val selectedCell = _uiState.value.selectedCell
+		if (selectedCell != null) {
+			if (!selectedCell.attributes.contains(CellAttributes.GENERATED)) {
+				updatedSudoku[selectedCell.row, selectedCell.col] = number
+				_uiState.update {
+					it.copy(
+						sudoku = updatedSudoku
+					)
+				}
+			}
 		}
 	}
 }

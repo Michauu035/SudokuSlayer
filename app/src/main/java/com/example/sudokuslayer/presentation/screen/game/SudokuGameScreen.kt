@@ -35,10 +35,10 @@ fun SudokuGameScreen(viewModel: SudokuGameViewModel, modifier: Modifier = Modifi
 			onCellClick = { row, col -> viewModel.onEvent(Event.SelectCell(row, col)) },
 		)
 		KeyPad(
-			onNumberClick = { },
-			onClearClick =  { },
-			onUndoClick = { },
-			onRedoClick = { }
+			onNumberClick = { viewModel.onEvent(Event.InputNumber(it)) },
+			onClearClick =  { viewModel.onEvent(Event.ClearCell) },
+			onUndoClick = { viewModel.onEvent(Event.Undo) },
+			onRedoClick = { viewModel.onEvent(Event.Redo) }
 		)
 	}
 }
