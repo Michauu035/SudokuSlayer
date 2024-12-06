@@ -23,12 +23,11 @@ fun SudokuCell(
 	cellData: SudokuCellData,
 	onClick: () -> Unit,
 	isGenerated: Boolean,
-	modifier: Modifier = Modifier,
 	selected: Boolean = false,
 ) {
 	val bgColor = if (selected) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainerLow
 	val weight = if (isGenerated) FontWeight.Bold else FontWeight.Normal
-	val textColor = if (isGenerated) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+	val textColor = if (isGenerated) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.tertiary
 
 	Box(
 		modifier = Modifier

@@ -48,6 +48,10 @@ class SudokuGrid() {
         )
     }
 
+    fun set(array: Array<SudokuCellData>) {
+        data = array
+    }
+
     operator fun iterator(): Iterator<SudokuCellData> {
         return data.iterator()
     }

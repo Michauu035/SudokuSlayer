@@ -100,6 +100,14 @@ class SudokuGameViewModel : ViewModel(){
 	}
 
 	private fun resetGame() {
-
+		var updatedSudoku = _uiState.value.sudoku.clone()
+		val grid  =
+			updatedSudoku.getArray().map { if (it.attributes.contains(CellAttributes.GENERATED)) it else it.copy(number = 0) }.toTypedArray()
+		updatedSudoku.set(grid)
+		_uiState.update {
+			it.copy(
+				sudoku = updatedSudoku
+			)
+		}
 	}
 }

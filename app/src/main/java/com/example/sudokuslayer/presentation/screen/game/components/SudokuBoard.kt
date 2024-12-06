@@ -1,10 +1,13 @@
 package com.example.sudokuslayer.presentation.screen.game.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +53,13 @@ fun SudokuBoard(
 					)
 				}
 			}
+
+			.border(
+				width = 1.dp,
+				color = MaterialTheme.colorScheme.outline,
+				shape = RoundedCornerShape(8.dp)
+			)
+
 	) {
 		items(sudoku.getArray()) { cell ->
 			Box() {
