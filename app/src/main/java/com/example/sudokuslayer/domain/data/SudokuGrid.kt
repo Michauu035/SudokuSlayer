@@ -1,5 +1,12 @@
 package com.example.sudokuslayer.domain.data
 
+import android.util.Log
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.runBlocking
 import kotlin.math.floor
 import kotlin.random.Random
 
@@ -13,7 +20,6 @@ class SudokuGrid() {
         }
     var random: Random = Random(0)
         private set
-
 
     constructor(grid: Array<IntArray>) : this() {
         grid.forEachIndexed { i, row ->
@@ -101,6 +107,8 @@ class SudokuGrid() {
         val grid = rows.joinToString("\n") { it.joinToString(", ") { it.number.toString() } }
         return grid
     }
+
+    fun getEmptyCellsCount(): Int = data.count { it.number == 0 }
 
     fun getArray(): Array<SudokuCellData> {
         return data

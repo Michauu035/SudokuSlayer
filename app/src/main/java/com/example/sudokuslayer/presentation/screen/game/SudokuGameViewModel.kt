@@ -7,21 +7,33 @@ import com.example.sudokuslayer.domain.data.CellAttributes
 import com.example.sudokuslayer.domain.data.SudokuCellData
 import com.example.sudokuslayer.domain.data.SudokuGrid
 import com.example.sudokuslayer.domain.model.ClassicSudokuGenerator
+import com.example.sudokuslayer.domain.model.ClassicSudokuSolver
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class SudokuGameUiState(
 	val sudoku: SudokuGrid = SudokuGrid(),
-	val selectedCell: SudokuCellData? = null
+	val selectedCell: SudokuCellData? = null,
+	val gameState: GameState = GameState.PLAYING,
+	val cellsToRemove: Int = 20 // Temporarly for testing purposes
 )
+
+enum class GameState {
+	PLAYING,
+	VICTORY,
+}
 
 class SudokuGameViewModel : ViewModel(){
 	private val _uiState = MutableStateFlow<SudokuGameUiState>(SudokuGameUiState())
 	val uiState: StateFlow<SudokuGameUiState> = _uiState
 	val generator = ClassicSudokuGenerator()
+
+
 
 	sealed interface Event {
 		data object GenerateSudoku: Event
@@ -33,6 +45,8 @@ class SudokuGameViewModel : ViewModel(){
 		data object ShowHint: Event
 		data object ShowMistakes: Event
 		data object Reset: Event
+		data object DismissVictoryDialog: Event
+		data class InputCellsToRemove(val number: Int): Event
 	}
 
 	fun onEvent(event: Event) {
@@ -56,15 +70,28 @@ class SudokuGameViewModel : ViewModel(){
 			}
 			is Event.ShowHint -> { }
 			is Event.ShowMistakes -> { }
+			is Event.DismissVictoryDialog -> {
+				handleDismissVictoryDialog()
+			}
+			is Event.InputCellsToRemove -> {
+				_uiState.update {
+					it.copy(
+						cellsToRemove = event.number
+					)
+				}
+			}
 		}
 	}
 
 	private fun regenerateSudoku(){
-		viewModelScope.launch(Dispatchers.Default) {
-			_uiState.update {
-				it.copy(
-					sudoku = generator.createSudoku(53)
-				)
+		val cellsToRemove = _uiState.value.cellsToRemove
+		if (cellsToRemove > 0 && cellsToRemove < 60) {
+			viewModelScope.launch(Dispatchers.Default) {
+				_uiState.update {
+					it.copy(
+						sudoku = generator.createSudoku(cellsToRemove)
+					)
+				}
 			}
 		}
 	}
@@ -97,6 +124,9 @@ class SudokuGameViewModel : ViewModel(){
 				}
 			}
 		}
+		if (_uiState.value.sudoku.getEmptyCellsCount() == 0) {
+			handleAllCellsFilled()
+		}
 	}
 
 	private fun resetGame() {
@@ -109,5 +139,25 @@ class SudokuGameViewModel : ViewModel(){
 				sudoku = updatedSudoku
 			)
 		}
+	}
+
+	private fun handleAllCellsFilled() {
+		val result = ClassicSudokuSolver.isValidSolution(_uiState.value.sudoku)
+		if (result) {
+			_uiState.update {
+				it.copy(
+					gameState = GameState.VICTORY
+				)
+			}
+		}
+	}
+
+	private fun handleDismissVictoryDialog() {
+		_uiState.update {
+			it.copy(
+				gameState = GameState.PLAYING
+			)
+		}
+		regenerateSudoku()
 	}
 }
