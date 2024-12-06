@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -37,7 +36,7 @@ fun VerticalActionPadRight(
 				)
 			},
 			bgColor = if (inputMode == InputMode.NUMBER) selectedBgColor else bgColor,
-			textColor = if (inputMode == InputMode.NUMBER) selectedIconColor else selectedIconColor,
+			textColor = if (inputMode == InputMode.NUMBER) selectedIconColor else iconColor,
 			onClick = onNumberSwitchClick
 		)
 		Spacer(modifier = Modifier.height(8.dp))
@@ -50,7 +49,7 @@ fun VerticalActionPadRight(
 				)
 			},
 			bgColor = if (inputMode == InputMode.NOTE) selectedBgColor else bgColor,
-			textColor = if (inputMode == InputMode.NOTE) selectedIconColor else selectedIconColor,
+			textColor = if (inputMode == InputMode.NOTE) selectedIconColor else iconColor,
 			onClick = onNoteSwitchClick
 		)
 		Spacer(modifier = Modifier.height(8.dp))
@@ -63,7 +62,7 @@ fun VerticalActionPadRight(
 				)
 			},
 			bgColor = if (inputMode == InputMode.COLOR) selectedBgColor else bgColor,
-			textColor = if (inputMode == InputMode.COLOR) selectedIconColor else selectedIconColor,
+			textColor = if (inputMode == InputMode.COLOR) selectedIconColor else iconColor,
 			onClick = onColorSwitchClick
 		)
 	}
