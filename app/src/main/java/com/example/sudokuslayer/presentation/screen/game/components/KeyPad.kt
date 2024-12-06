@@ -8,6 +8,7 @@ import com.example.sudokuslayer.presentation.screen.game.components.keypadparts.
 import com.example.sudokuslayer.presentation.screen.game.components.keypadparts.NumberPad
 import com.example.sudokuslayer.presentation.screen.game.components.keypadparts.VerticalActionPadLeft
 import com.example.sudokuslayer.presentation.screen.game.components.keypadparts.VerticalActionPadRight
+import com.example.sudokuslayer.presentation.screen.game.model.InputMode
 
 @Composable
 fun KeyPad(
@@ -21,6 +22,7 @@ fun KeyPad(
 	onHintClick: () -> Unit,
 	onShowMistakesClick: () -> Unit,
 	onResetClick: () -> Unit,
+	inputMode: InputMode
 ) {
 	Row() {
 		VerticalActionPadLeft(
@@ -41,7 +43,8 @@ fun KeyPad(
 		VerticalActionPadRight(
 			onNumberSwitchClick = onNumberSwitchClick,
 			onNoteSwitchClick = onNoteSwitchClick,
-			onColorSwitchClick = onColorSwitchClick
+			onColorSwitchClick = onColorSwitchClick,
+			inputMode = inputMode
 		)
 	}
 }
@@ -59,6 +62,7 @@ private fun KeyPadPreview() {
 		onColorSwitchClick = { },
 		onHintClick = { },
 		onShowMistakesClick = { },
-		onResetClick = { }
+		onResetClick = { },
+		inputMode = InputMode.NUMBER
 	)
 }

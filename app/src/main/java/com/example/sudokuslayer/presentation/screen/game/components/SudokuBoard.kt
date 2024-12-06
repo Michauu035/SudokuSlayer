@@ -3,14 +3,12 @@ package com.example.sudokuslayer.presentation.screen.game.components
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -62,7 +60,7 @@ fun SudokuBoard(
 
 	) {
 		items(sudoku.getArray()) { cell ->
-			Box() {
+			Box {
 				SudokuCell(
 					cellData = cell,
 					onClick = { onCellClick(cell.row, cell.col) },
@@ -80,5 +78,8 @@ fun SudokuBoard(
 @Composable
 private fun SudokuBoardPreview() {
 	var grid = SudokuGrid()
-//	return SudokuBoard(grid)
+	return SudokuBoard(
+		grid,
+		onCellClick = { row, col -> },
+	)
 }

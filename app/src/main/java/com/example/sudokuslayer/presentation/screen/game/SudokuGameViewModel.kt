@@ -1,39 +1,24 @@
 package com.example.sudokuslayer.presentation.screen.game
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sudokuslayer.domain.data.CellAttributes
-import com.example.sudokuslayer.domain.data.SudokuCellData
-import com.example.sudokuslayer.domain.data.SudokuGrid
 import com.example.sudokuslayer.domain.model.ClassicSudokuGenerator
 import com.example.sudokuslayer.domain.model.ClassicSudokuSolver
-import kotlinx.coroutines.CoroutineScope
+import com.example.sudokuslayer.presentation.screen.game.model.GameState
+import com.example.sudokuslayer.presentation.screen.game.model.InputMode
+import com.example.sudokuslayer.presentation.screen.game.model.SudokuGameUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class SudokuGameUiState(
-	val sudoku: SudokuGrid = SudokuGrid(),
-	val selectedCell: SudokuCellData? = null,
-	val gameState: GameState = GameState.PLAYING,
-	val cellsToRemove: Int = 20 // Temporarly for testing purposes
-)
-
-enum class GameState {
-	PLAYING,
-	VICTORY,
-}
 
 class SudokuGameViewModel : ViewModel(){
 	private val _uiState = MutableStateFlow<SudokuGameUiState>(SudokuGameUiState())
 	val uiState: StateFlow<SudokuGameUiState> = _uiState
 	val generator = ClassicSudokuGenerator()
-
-
 
 	sealed interface Event {
 		data object GenerateSudoku: Event
@@ -46,7 +31,10 @@ class SudokuGameViewModel : ViewModel(){
 		data object ShowMistakes: Event
 		data object Reset: Event
 		data object DismissVictoryDialog: Event
-		data class InputCellsToRemove(val number: Int): Event
+		data object NumberSwitch: Event
+		data object NoteSwitch: Event
+		data object ColorSwitch: Event
+		data class InputCellsToRemove(val number: Int): Event // Temporary
 	}
 
 	fun onEvent(event: Event) {
@@ -80,6 +68,10 @@ class SudokuGameViewModel : ViewModel(){
 					)
 				}
 			}
+
+			Event.ColorSwitch -> { switchInputMode(InputMode.COLOR) }
+			Event.NoteSwitch -> { switchInputMode(InputMode.NOTE) }
+			Event.NumberSwitch -> { switchInputMode(InputMode.NUMBER) }
 		}
 	}
 
@@ -160,4 +152,13 @@ class SudokuGameViewModel : ViewModel(){
 		}
 		regenerateSudoku()
 	}
+
+	private fun switchInputMode(mode: InputMode) {
+		_uiState.update {
+			it.copy(
+				inputMode = mode
+			)
+		}
+	}
 }
+

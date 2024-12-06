@@ -1,19 +1,9 @@
 package com.example.sudokuslayer.presentation.screen.game
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -23,14 +13,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.SecureFlagPolicy
 import com.example.sudokuslayer.presentation.screen.game.SudokuGameViewModel.Event
 import com.example.sudokuslayer.presentation.screen.game.components.KeyPad
 import com.example.sudokuslayer.presentation.screen.game.components.SudokuBoard
 import com.example.sudokuslayer.presentation.screen.game.components.VictoryDialog
+import com.example.sudokuslayer.presentation.screen.game.model.GameState
 
 @Composable
 fun SudokuGameScreen(viewModel: SudokuGameViewModel, modifier: Modifier = Modifier) {
@@ -75,12 +62,13 @@ fun SudokuGameScreen(viewModel: SudokuGameViewModel, modifier: Modifier = Modifi
 			onClearClick = { viewModel.onEvent(Event.ClearCell) },
 			onUndoClick = { viewModel.onEvent(Event.Undo) },
 			onRedoClick = { viewModel.onEvent(Event.Redo) },
-			onNumberSwitchClick = { },
-			onNoteSwitchClick = { },
-			onColorSwitchClick = { },
+			onNumberSwitchClick = { viewModel.onEvent(Event.NumberSwitch) },
+			onNoteSwitchClick = { viewModel.onEvent(Event.NoteSwitch) },
+			onColorSwitchClick = { viewModel.onEvent(Event.ColorSwitch) },
 			onHintClick = { viewModel.onEvent(Event.ShowHint) },
 			onShowMistakesClick = { viewModel.onEvent(Event.ShowMistakes) },
 			onResetClick = { viewModel.onEvent(Event.Reset) },
+			inputMode = uiState.inputMode
 		)
 	}
 }

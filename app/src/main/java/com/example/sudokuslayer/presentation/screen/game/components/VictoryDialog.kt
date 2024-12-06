@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
-import com.example.sudokuslayer.presentation.screen.game.GameState
 
 @Composable
 fun VictoryDialog(isVisible: Boolean, onDismissRequest: () -> Unit) {
