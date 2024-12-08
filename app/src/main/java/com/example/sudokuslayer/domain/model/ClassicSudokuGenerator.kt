@@ -2,9 +2,6 @@ package com.example.sudokuslayer.domain.model
 
 import com.example.sudokuslayer.domain.data.CellAttributes
 import com.example.sudokuslayer.domain.data.SudokuGrid
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 class ClassicSudokuGenerator : SudokuGenerator {
     override fun createSudoku(cellsToRemove: Int, seed: Long): SudokuGrid {

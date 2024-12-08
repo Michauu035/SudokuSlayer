@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.sudokuslayer.presentation.screen.game.SudokuGameViewModel.Event
 import com.example.sudokuslayer.presentation.screen.game.components.KeyPad
 import com.example.sudokuslayer.presentation.screen.game.components.SudokuBoard
@@ -20,7 +21,7 @@ import com.example.sudokuslayer.presentation.screen.game.components.VictoryDialo
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
 
 @Composable
-fun SudokuGameScreen(viewModel: SudokuGameViewModel, modifier: Modifier = Modifier) {
+fun SudokuGameScreen(viewModel: SudokuGameViewModel = viewModel(), modifier: Modifier = Modifier) {
 	val uiState = viewModel.uiState.collectAsState().value
 	val sudoku = uiState.sudoku
 

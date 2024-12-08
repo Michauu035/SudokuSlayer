@@ -1,7 +1,6 @@
 package com.example.sudokuslayer.domain.model
 
 import com.example.sudokuslayer.domain.data.SudokuGrid
-import kotlin.random.Random
 
 object ClassicSudokuSolver : SudokuSolver {
 	/**
@@ -223,7 +222,7 @@ object ClassicSudokuSolver : SudokuSolver {
 	 * a solution is found, the solution count is incremented. If the solution count
 	 * exceeds 1, it immediately returns `false`, indicating the puzzle has multiple solutions.
 	 *
-	 * @param sudokuGrid the [SudokuGrid] to check.
+	 * @param sudoku the [SudokuGrid] to check.
 	 * @return `true` if the puzzle has exactly one solution, `false` otherwise.
 	 *
 	 * **Example Usage:**

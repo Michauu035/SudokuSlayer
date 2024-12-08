@@ -1,5 +1,6 @@
 package com.example.sudokuslayer.presentation.navigation.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -14,14 +15,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.sudokuslayer.R
+import com.example.sudokuslayer.presentation.navigation.Destination
+import androidx.compose.runtime.getValue
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavDestination.Companion.hasRoute
 
+@SuppressLint("RestrictedApi")
 @Composable
 fun NavigationDrawer(
 	drawerState: DrawerState,
-	modifier: Modifier = Modifier,
+	navController: NavController,
 	content: @Composable () -> Unit
 ) {
+	val navBackStackEntry by navController.currentBackStackEntryAsState()
+	val currentScreen = navBackStackEntry?.destination
+
 	ModalNavigationDrawer(
 		drawerState = drawerState,
 		drawerContent = {
@@ -31,8 +42,10 @@ fun NavigationDrawer(
 				NavigationDrawerItem(
 					icon = { Icon(painterResource(R.drawable.tag), "") },
 					label = { Text("Current game") },
-					selected = true,
-					onClick = { },
+					selected = currentScreen?.hierarchy?.any { it.hasRoute(Destination.SudokuGame::class) } == true,
+					onClick = {
+						navController.navigate(Destination.SudokuGame)
+					},
 					modifier = Modifier.padding(8.dp)
 				)
 				NavigationDrawerItem(
@@ -42,8 +55,10 @@ fun NavigationDrawer(
 					label = {
 						Text("New game")
 					},
-					selected = false,
-					onClick = { },
+					selected = currentScreen?.hierarchy?.any { it.hasRoute(Destination.SudokuCreator::class) } == true,
+					onClick = {
+						navController.navigate(Destination.SudokuCreator)
+					},
 					modifier = Modifier.padding(8.dp)
 				)
 			}

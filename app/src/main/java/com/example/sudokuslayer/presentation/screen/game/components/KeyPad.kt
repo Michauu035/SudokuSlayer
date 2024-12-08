@@ -24,7 +24,7 @@ fun KeyPad(
 	onResetClick: () -> Unit,
 	inputMode: InputMode
 ) {
-	Row() {
+	Row {
 		VerticalActionPadLeft(
 			onHintClick = onHintClick,
 			onShowMistakesClick = onShowMistakesClick,
