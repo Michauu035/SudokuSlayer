@@ -16,6 +16,8 @@ fun SudokuNavHost(navController: NavHostController) {
 		startDestination = SudokuCreator
 	) {
 		composable<SudokuGame> { SudokuGameScreen() }
-		composable<SudokuCreator> { SudokuCreatorScreen() }
+		composable<SudokuCreator> { SudokuCreatorScreen(
+			onNavigateToGameScreen = {}
+		) }
 	}
 }
