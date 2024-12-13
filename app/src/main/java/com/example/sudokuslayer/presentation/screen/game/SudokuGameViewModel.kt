@@ -1,27 +1,39 @@
 package com.example.sudokuslayer.presentation.screen.game
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
 import com.example.sudokuslayer.domain.data.CellAttributes
-import com.example.sudokuslayer.domain.model.ClassicSudokuGenerator
 import com.example.sudokuslayer.domain.model.ClassicSudokuSolver
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
 import com.example.sudokuslayer.presentation.screen.game.model.InputMode
 import com.example.sudokuslayer.presentation.screen.game.model.SudokuGameUiState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
-class SudokuGameViewModel : ViewModel(){
+class SudokuGameViewModel(
+	private val dataStoreRepository: SudokuDataStoreRepository
+) : ViewModel(){
 	private val _uiState = MutableStateFlow<SudokuGameUiState>(SudokuGameUiState())
 	val uiState: StateFlow<SudokuGameUiState> = _uiState
-	val generator = ClassicSudokuGenerator()
+	private val _isLoading = MutableStateFlow(false)
+	val isLoading = _isLoading
+		.onStart { loadData() }
+		.stateIn(
+			viewModelScope,
+			SharingStarted.WhileSubscribed(5000L),
+			false
+		)
 
 	sealed interface Event {
-		data object GenerateSudoku: Event
 		data class SelectCell(val row: Int, val col: Int): Event
 		data class InputNumber(val number: Int): Event
 		data object ClearCell: Event
@@ -34,14 +46,10 @@ class SudokuGameViewModel : ViewModel(){
 		data object NumberSwitch: Event
 		data object NoteSwitch: Event
 		data object ColorSwitch: Event
-		data class InputCellsToRemove(val number: Int): Event // Temporary
 	}
 
 	fun onEvent(event: Event) {
 		when(event) {
-			is Event.GenerateSudoku -> {
-				regenerateSudoku()
-			}
 			is Event.SelectCell -> {
 				selectCell(event.row, event.col)
 			}
@@ -61,30 +69,23 @@ class SudokuGameViewModel : ViewModel(){
 			is Event.DismissVictoryDialog -> {
 				handleDismissVictoryDialog()
 			}
-			is Event.InputCellsToRemove -> {
-				_uiState.update {
-					it.copy(
-						cellsToRemove = event.number
-					)
-				}
-			}
-
 			Event.ColorSwitch -> { switchInputMode(InputMode.COLOR) }
 			Event.NoteSwitch -> { switchInputMode(InputMode.NOTE) }
 			Event.NumberSwitch -> { switchInputMode(InputMode.NUMBER) }
 		}
 	}
 
-	private fun regenerateSudoku(){
-		val cellsToRemove = _uiState.value.cellsToRemove
-		if (cellsToRemove > 0 && cellsToRemove < 60) {
-			viewModelScope.launch(Dispatchers.Default) {
+	private fun loadData() {
+		viewModelScope.launch {
+			_isLoading.value = true
+			dataStoreRepository.sudokuGridProto.firstOrNull()?.let { gridData ->
 				_uiState.update {
 					it.copy(
-						sudoku = generator.createSudoku(cellsToRemove)
+						sudoku = gridData
 					)
 				}
-			}
+			} ?: throw Exception("Proto Sudoku not found!")
+			_isLoading.value = false
 		}
 	}
 
@@ -112,6 +113,13 @@ class SudokuGameViewModel : ViewModel(){
 				_uiState.update {
 					it.copy(
 						sudoku = updatedSudoku
+					)
+				}
+				viewModelScope.launch {
+					dataStoreRepository.updateCell(
+						row = selectedCell.row,
+						col = selectedCell.col,
+						newCellData = updatedSudoku[selectedCell.row, selectedCell.col]
 					)
 				}
 			}
@@ -150,7 +158,6 @@ class SudokuGameViewModel : ViewModel(){
 				gameState = GameState.PLAYING
 			)
 		}
-		regenerateSudoku()
 	}
 
 	private fun switchInputMode(mode: InputMode) {
@@ -162,3 +169,8 @@ class SudokuGameViewModel : ViewModel(){
 	}
 }
 
+class SudokuGameViewModelFactory(
+	private val dataStoreRepository: SudokuDataStoreRepository
+) : ViewModelProvider.NewInstanceFactory() {
+	override fun <T : ViewModel> create(modelClass: Class<T>): T = SudokuGameViewModel(dataStoreRepository) as T
+}

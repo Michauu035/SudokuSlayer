@@ -1,13 +1,17 @@
 package com.example.sudokuslayer.presentation.screen.sudokucreator
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
 import com.example.sudokuslayer.domain.data.SudokuGrid
 import com.example.sudokuslayer.domain.model.ClassicSudokuGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.random.Random
@@ -16,7 +20,8 @@ import kotlin.random.Random
 data class SudokuCreatorUiState(
 	val difficulty: SudokuDifficulty = SudokuDifficulty.EASY,
 	val screenState: ScreenState = ScreenState.INITIAL,
-	val sudoku: SudokuGrid? = null
+	val sudoku: SudokuGrid? = null,
+	val hasSavedData: Boolean = false
 )
 
 enum class ScreenState {
@@ -41,9 +46,24 @@ enum class SudokuDifficulty {
 	}
 }
 
-class SudokuCreatorViewModel : ViewModel() {
+class SudokuCreatorViewModel(
+	private val dataStoreRepository: SudokuDataStoreRepository
+) : ViewModel() {
 	private val _uiState = MutableStateFlow<SudokuCreatorUiState>(SudokuCreatorUiState())
 	val uiState: StateFlow<SudokuCreatorUiState> = _uiState.asStateFlow()
+
+	init {
+		viewModelScope.launch {
+			dataStoreRepository.sudokuGridProto.firstOrNull()?.let { sudoku ->
+				val hasData = sudoku.getArray().isNotEmpty()
+				_uiState.update {
+					it.copy(hasSavedData = hasData)
+				}
+			} ?: _uiState.update {
+				it.copy(hasSavedData = false)
+			}
+		}
+	}
 
 	sealed interface Event {
 		data class ChangeDifficulty(val num: Int): Event
@@ -55,7 +75,7 @@ class SudokuCreatorViewModel : ViewModel() {
 		when (event) {
 			is Event.ChangeDifficulty -> handleChangeDifficulty(event.num)
 			Event.NewGame -> { handleNewGame() }
-			Event.LoadSudoku -> { }
+			Event.LoadSudoku -> { handleLoadGame() }
 		}
 	}
 
@@ -90,6 +110,27 @@ class SudokuCreatorViewModel : ViewModel() {
 					sudoku = sudoku
 				)
 			}
+
+			dataStoreRepository.updateData(_uiState.value.sudoku!!)
+		}
+	}
+
+	private fun handleLoadGame() {
+		_uiState.update {
+			it.copy(screenState = ScreenState.LOADING)
+		}
+		viewModelScope.launch {
+			_uiState.update {
+				it.copy(
+					sudoku = dataStoreRepository.sudokuGridProto.first(),
+					screenState = ScreenState.DONE
+				)
+			}
 		}
 	}
 }
+
+class SudokuCreatorViewModelFactory(private val dataStoreRepository: SudokuDataStoreRepository) :
+		ViewModelProvider.NewInstanceFactory() {
+	override fun <T : ViewModel> create(modelClass: Class<T>): T = SudokuCreatorViewModel(dataStoreRepository) as T
+		}

@@ -1,19 +1,17 @@
 package com.example.sudokuslayer.presentation.screen.game
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
+import com.example.sudokuslayer.data.datastore.sudokuGridDataStore
 import com.example.sudokuslayer.presentation.screen.game.SudokuGameViewModel.Event
 import com.example.sudokuslayer.presentation.screen.game.components.KeyPad
 import com.example.sudokuslayer.presentation.screen.game.components.SudokuBoard
@@ -21,13 +19,21 @@ import com.example.sudokuslayer.presentation.screen.game.components.VictoryDialo
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
 
 @Composable
-fun SudokuGameScreen(viewModel: SudokuGameViewModel = viewModel(), modifier: Modifier = Modifier) {
+fun SudokuGameScreen(
+	context: Context,
+	viewModel: SudokuGameViewModel = viewModel(
+		factory = SudokuGameViewModelFactory(
+			SudokuDataStoreRepository(
+				context.sudokuGridDataStore
+			)
+		)
+	),
+	modifier: Modifier = Modifier
+) {
 	val uiState = viewModel.uiState.collectAsState().value
 	val sudoku = uiState.sudoku
 
-	LaunchedEffect(Unit) {
-		viewModel.onEvent(Event.GenerateSudoku)
-	}
+	val loading = viewModel.isLoading.collectAsState()
 
 	VictoryDialog(
 		isVisible = uiState.gameState == GameState.VICTORY,
@@ -39,21 +45,6 @@ fun SudokuGameScreen(viewModel: SudokuGameViewModel = viewModel(), modifier: Mod
 		modifier = modifier,
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
-		Row {
-			TextField(
-				value = uiState.cellsToRemove.toString(),
-				label = {
-					Text("Cells to remove")
-				},
-				onValueChange = { num -> viewModel.onEvent(Event.InputCellsToRemove(if (num.isNotEmpty()) num.toInt() else 1)) },
-				keyboardOptions = KeyboardOptions(
-					keyboardType = KeyboardType.Number,
-				)
-			)
-			Button(onClick = { viewModel.onEvent(Event.GenerateSudoku) }) {
-				Text("New sudoku")
-			}
-		}
 		SudokuBoard(
 			sudoku = sudoku,
 			onCellClick = { row, col -> viewModel.onEvent(Event.SelectCell(row, col)) },
@@ -71,12 +62,16 @@ fun SudokuGameScreen(viewModel: SudokuGameViewModel = viewModel(), modifier: Mod
 			onResetClick = { viewModel.onEvent(Event.Reset) },
 			inputMode = uiState.inputMode
 		)
+		if (loading.value) {
+			CircularProgressIndicator()
+		}
 	}
 }
 
 @Preview
 @Composable
 private fun SudokuGameScreenPreview() {
-	val viewModel = SudokuGameViewModel()
-	SudokuGameScreen(viewModel)
+	SudokuGameScreen(
+		context = LocalContext.current
+	)
 }

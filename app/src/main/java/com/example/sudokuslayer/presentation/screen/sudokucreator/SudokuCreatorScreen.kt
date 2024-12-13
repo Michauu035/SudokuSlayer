@@ -1,5 +1,6 @@
 package com.example.sudokuslayer.presentation.screen.sudokucreator
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,15 +18,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
+import com.example.sudokuslayer.data.datastore.sudokuGridDataStore
+import com.example.sudokuslayer.presentation.navigation.Destination
 import com.example.sudokuslayer.presentation.screen.sudokucreator.SudokuCreatorViewModel.Event
 import com.example.sudokuslayer.presentation.screen.sudokucreator.components.HorizontalSelect
 
 @Composable
 fun SudokuCreatorScreen(
-	viewModel: SudokuCreatorViewModel = viewModel(),
+	context: Context,
+	navController: NavController,
+	viewModel: SudokuCreatorViewModel = viewModel(factory = SudokuCreatorViewModelFactory(
+		SudokuDataStoreRepository(context.sudokuGridDataStore))),
 	modifier: Modifier = Modifier
 ) {
 	val uiState = viewModel.uiState.collectAsState().value
@@ -54,7 +64,10 @@ fun SudokuCreatorScreen(
 		)
 		when(uiState.screenState) {
 			ScreenState.INITIAL -> {
-				Button(onClick = { viewModel.onEvent(Event.LoadSudoku) }) {
+				Button(
+					enabled = uiState.hasSavedData,
+					onClick = { viewModel.onEvent(Event.LoadSudoku) }
+				) {
 					Text("Continue")
 				}
 				Button(onClick = { viewModel.onEvent(Event.NewGame) }) {
@@ -65,7 +78,7 @@ fun SudokuCreatorScreen(
 				CircularProgressIndicator()
 			}
 			ScreenState.DONE -> {
-				Text("DONE")
+				navController.navigate(Destination.SudokuGame)
 			}
 		}
 	}
@@ -74,5 +87,8 @@ fun SudokuCreatorScreen(
 @Preview
 @Composable
 private fun SudokuCreatorScreenPreview() {
-	SudokuCreatorScreen()
+	SudokuCreatorScreen(
+		context = LocalContext.current,
+		navController = rememberNavController()
+	)
 }

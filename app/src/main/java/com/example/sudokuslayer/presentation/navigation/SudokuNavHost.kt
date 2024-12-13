@@ -1,6 +1,7 @@
 package com.example.sudokuslayer.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,9 +16,12 @@ fun SudokuNavHost(navController: NavHostController) {
 		navController = navController,
 		startDestination = SudokuCreator
 	) {
-		composable<SudokuGame> { SudokuGameScreen() }
+		composable<SudokuGame> { SudokuGameScreen(
+			context = LocalContext.current
+		) }
 		composable<SudokuCreator> { SudokuCreatorScreen(
-			onNavigateToGameScreen = {}
+			context = LocalContext.current,
+			navController = navController
 		) }
 	}
 }
