@@ -9,6 +9,7 @@ import com.example.sudokuslayer.domain.model.ClassicSudokuSolver
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
 import com.example.sudokuslayer.presentation.screen.game.model.InputMode
 import com.example.sudokuslayer.presentation.screen.game.model.SudokuGameUiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -89,7 +90,7 @@ class SudokuGameViewModel(
 	}
 
 	private fun loadData() {
-		viewModelScope.launch {
+		viewModelScope.launch(Dispatchers.IO) {
 			_isLoading.value = true
 			dataStoreRepository.sudokuGridProto.firstOrNull()?.let { gridData ->
 				_uiState.update {
