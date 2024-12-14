@@ -52,6 +52,15 @@ class SudokuGrid() {
         data = array
     }
 
+    fun replaceCell(row: Int, col: Int, cellData: SudokuCellData) {
+        val index = getIndex(row, col)
+        data[index] = data[index].copy(
+			number = cellData.number,
+			cornerNotes = cellData.cornerNotes,
+			centerNotes = cellData.centerNotes,
+		)
+    }
+
     operator fun iterator(): Iterator<SudokuCellData> = data.iterator()
 
     /**

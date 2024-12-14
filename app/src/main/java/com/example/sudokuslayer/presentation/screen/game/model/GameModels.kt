@@ -11,6 +11,11 @@ data class SudokuGameUiState(
 	val cellsToRemove: Int = 20 // Temporarly for testing purposes
 )
 
+data class SudokuMove(
+	val previousCellData: SudokuCellData,
+	val newCellData: SudokuCellData
+)
+
 enum class GameState {
 	PLAYING,
 	VICTORY,

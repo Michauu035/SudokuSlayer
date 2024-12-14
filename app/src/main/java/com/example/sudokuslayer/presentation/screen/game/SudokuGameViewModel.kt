@@ -9,6 +9,7 @@ import com.example.sudokuslayer.domain.model.ClassicSudokuSolver
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
 import com.example.sudokuslayer.presentation.screen.game.model.InputMode
 import com.example.sudokuslayer.presentation.screen.game.model.SudokuGameUiState
+import com.example.sudokuslayer.presentation.screen.game.model.SudokuMove
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,6 +34,8 @@ class SudokuGameViewModel(
 			SharingStarted.WhileSubscribed(5000L),
 			false
 		)
+	private val lastMoves: ArrayDeque<SudokuMove> = ArrayDeque()
+	private val futureMoves: ArrayDeque<SudokuMove> = ArrayDeque()
 
 	sealed interface Event {
 		data class SelectCell(val row: Int, val col: Int) : Event
@@ -51,41 +54,18 @@ class SudokuGameViewModel(
 
 	fun onEvent(event: Event) {
 		when (event) {
-			is Event.SelectCell -> {
-				selectCell(event.row, event.col)
-			}
-
-			is Event.InputNumber -> {
-				inputNumber(event.number)
-			}
-
-			is Event.ClearCell -> {
-				inputNumber(0)
-			}
-
-			is Event.Undo -> {}
-			is Event.Redo -> {}
-			is Event.Reset -> {
-				resetGame()
-			}
-
+			is Event.SelectCell -> selectCell(event.row, event.col)
+			is Event.InputNumber -> inputNumber(event.number)
+			is Event.ClearCell -> inputNumber(0)
+			is Event.Undo -> undoLastMove()
+			is Event.Redo -> redoLastMove()
+			is Event.Reset -> resetGame()
 			is Event.ShowHint -> {}
 			is Event.ShowMistakes -> {}
-			is Event.DismissVictoryDialog -> {
-				handleDismissVictoryDialog()
-			}
-
-			Event.ColorSwitch -> {
-				switchInputMode(InputMode.COLOR)
-			}
-
-			Event.NoteSwitch -> {
-				switchInputMode(InputMode.NOTE)
-			}
-
-			Event.NumberSwitch -> {
-				switchInputMode(InputMode.NUMBER)
-			}
+			is Event.DismissVictoryDialog -> handleDismissVictoryDialog()
+			is Event.ColorSwitch -> switchInputMode(InputMode.COLOR)
+			is Event.NoteSwitch -> switchInputMode(InputMode.NOTE)
+			is Event.NumberSwitch -> switchInputMode(InputMode.NUMBER)
 		}
 	}
 
@@ -155,6 +135,8 @@ class SudokuGameViewModel(
 			}
 		}
 
+		lastMoves.add(SudokuMove(previousCellData = cell, newCellData = updatedSudoku[row, col]))
+
 		_uiState.update {
 			it.copy(sudoku = updatedSudoku)
 		}
@@ -219,6 +201,58 @@ class SudokuGameViewModel(
 		_uiState.update {
 			it.copy(
 				inputMode = mode
+			)
+		}
+	}
+
+	private fun undoLastMove() {
+		if (lastMoves.isEmpty())
+			return
+
+		viewModelScope.launch {
+			val (previousCellData, newCellData) = lastMoves.removeLast()
+			val currentState = _uiState.value
+			val updatedSudoku = currentState.sudoku.clone()
+
+			updatedSudoku.replaceCell(previousCellData.row, previousCellData.col, previousCellData)
+			futureMoves.add(SudokuMove(newCellData, previousCellData))
+
+			_uiState.update {
+				it.copy(
+					sudoku = updatedSudoku
+				)
+			}
+
+			dataStoreRepository.updateCell(
+				row = previousCellData.row,
+				col = previousCellData.col,
+				newCellData = updatedSudoku[previousCellData.row, previousCellData.col]
+			)
+		}
+	}
+
+	private fun redoLastMove() {
+		if (futureMoves.isEmpty())
+			return
+
+		viewModelScope.launch {
+			val (previousCellData, newCellData) = futureMoves.removeLast()
+			val currentState = _uiState.value
+			val updatedSudoku = currentState.sudoku.clone()
+
+			updatedSudoku.replaceCell(previousCellData.row, previousCellData.col, previousCellData)
+			lastMoves.add(SudokuMove(newCellData, previousCellData))
+
+			_uiState.update {
+				it.copy(
+					sudoku = updatedSudoku
+				)
+			}
+
+			dataStoreRepository.updateCell(
+				row = previousCellData.row,
+				col = previousCellData.col,
+				newCellData = updatedSudoku[previousCellData.row, previousCellData.col]
 			)
 		}
 	}
