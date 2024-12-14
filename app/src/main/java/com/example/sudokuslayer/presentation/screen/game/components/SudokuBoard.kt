@@ -23,7 +23,7 @@ fun SudokuBoard(
 	onCellClick: (Int, Int) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val cellBorderColor = MaterialTheme.colorScheme.onBackground
+	val cellBorderColor = MaterialTheme.colorScheme.outline
 	val subgridBorderColor = MaterialTheme.colorScheme.primary
 
 	LazyVerticalGrid(

@@ -33,6 +33,7 @@ fun KeyPad(
 		Column {
 			NumberPad(
 				onButtonClick = onNumberClick,
+				inputMode = inputMode
 			)
 			ActionPad(
 				onClearClick = onClearClick,
