@@ -172,21 +172,26 @@ class SudokuGameViewModel(
 	}
 
 	private fun resetGame() {
-		var updatedSudoku = _uiState.value.sudoku.clone()
-		val grid =
-			updatedSudoku.getArray()
-				.map {
-					if (it.attributes.contains(CellAttributes.GENERATED)) it else it.copy(
-						number = 0,
-						cornerNotes = emptySet()
-					)
-				}
-				.toTypedArray()
-		updatedSudoku.set(grid)
-		_uiState.update {
-			it.copy(
-				sudoku = updatedSudoku
-			)
+		viewModelScope.launch {
+			var updatedSudoku = _uiState.value.sudoku.clone()
+			val grid =
+				updatedSudoku.getArray()
+					.map {
+						if (it.attributes.contains(CellAttributes.GENERATED)) it else it.copy(
+							number = 0,
+							cornerNotes = emptySet()
+						)
+					}
+					.toTypedArray()
+
+			updatedSudoku.set(grid)
+			_uiState.update {
+				it.copy(
+					sudoku = updatedSudoku
+				)
+			}
+
+			dataStoreRepository.updateData(updatedSudoku)
 		}
 	}
 

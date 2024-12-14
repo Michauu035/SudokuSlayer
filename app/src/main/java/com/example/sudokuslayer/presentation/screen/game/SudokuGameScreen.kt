@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -14,6 +18,7 @@ import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
 import com.example.sudokuslayer.data.datastore.sudokuGridDataStore
 import com.example.sudokuslayer.presentation.screen.game.SudokuGameViewModel.Event
 import com.example.sudokuslayer.presentation.screen.game.components.KeyPad
+import com.example.sudokuslayer.presentation.screen.game.components.ResetDialog
 import com.example.sudokuslayer.presentation.screen.game.components.SudokuBoard
 import com.example.sudokuslayer.presentation.screen.game.components.VictoryDialog
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
@@ -34,10 +39,20 @@ fun SudokuGameScreen(
 	val sudoku = uiState.sudoku
 
 	val loading = viewModel.isLoading.collectAsState()
+	var resetDialogVisible by remember { mutableStateOf(false) }
 
 	VictoryDialog(
 		isVisible = uiState.gameState == GameState.VICTORY,
 		onDismissRequest = { viewModel.onEvent(Event.DismissVictoryDialog) }
+	)
+
+	ResetDialog(
+		isVisible = resetDialogVisible,
+		onConfirmClick = {
+			viewModel.onEvent(Event.Reset)
+			resetDialogVisible = false
+		},
+		onDismissClick = { resetDialogVisible = false }
 	)
 
 
@@ -59,7 +74,7 @@ fun SudokuGameScreen(
 			onColorSwitchClick = { viewModel.onEvent(Event.ColorSwitch) },
 			onHintClick = { viewModel.onEvent(Event.ShowHint) },
 			onShowMistakesClick = { viewModel.onEvent(Event.ShowMistakes) },
-			onResetClick = { viewModel.onEvent(Event.Reset) },
+			onResetClick = { resetDialogVisible = true },
 			inputMode = uiState.inputMode
 		)
 		if (loading.value) {
