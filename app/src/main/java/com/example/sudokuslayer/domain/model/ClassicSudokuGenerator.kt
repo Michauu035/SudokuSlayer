@@ -8,9 +8,8 @@ class ClassicSudokuGenerator : SudokuGenerator {
         var sudoku = SudokuGrid(seed)
         ClassicSudokuSolver.fillGrid(sudoku)
         sudoku = removeCells(sudoku, cellsToRemove)
-        for (cell in sudoku) {
-            if (cell.number != 0)
-                cell.attributes += CellAttributes.GENERATED
+        for (cell in sudoku.getArray().filter { it.number != 0 }) {
+            sudoku.addAttribute(cell.row, cell.col, CellAttributes.GENERATED)
         }
         return sudoku
     }

@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class SudokuGameViewModel(
 	private val dataStoreRepository: SudokuDataStoreRepository
-) : ViewModel(){
+) : ViewModel() {
 	private val _uiState = MutableStateFlow<SudokuGameUiState>(SudokuGameUiState())
 	val uiState: StateFlow<SudokuGameUiState> = _uiState
 	private val _isLoading = MutableStateFlow(false)
@@ -34,44 +34,57 @@ class SudokuGameViewModel(
 		)
 
 	sealed interface Event {
-		data class SelectCell(val row: Int, val col: Int): Event
-		data class InputNumber(val number: Int): Event
-		data object ClearCell: Event
-		data object Undo: Event
-		data object Redo: Event
-		data object ShowHint: Event
-		data object ShowMistakes: Event
-		data object Reset: Event
-		data object DismissVictoryDialog: Event
-		data object NumberSwitch: Event
-		data object NoteSwitch: Event
-		data object ColorSwitch: Event
+		data class SelectCell(val row: Int, val col: Int) : Event
+		data class InputNumber(val number: Int) : Event
+		data object ClearCell : Event
+		data object Undo : Event
+		data object Redo : Event
+		data object ShowHint : Event
+		data object ShowMistakes : Event
+		data object Reset : Event
+		data object DismissVictoryDialog : Event
+		data object NumberSwitch : Event
+		data object NoteSwitch : Event
+		data object ColorSwitch : Event
 	}
 
 	fun onEvent(event: Event) {
-		when(event) {
+		when (event) {
 			is Event.SelectCell -> {
 				selectCell(event.row, event.col)
 			}
+
 			is Event.InputNumber -> {
 				inputNumber(event.number)
 			}
+
 			is Event.ClearCell -> {
 				inputNumber(0)
 			}
-			is Event.Undo -> { }
-			is Event.Redo -> { }
+
+			is Event.Undo -> {}
+			is Event.Redo -> {}
 			is Event.Reset -> {
 				resetGame()
 			}
-			is Event.ShowHint -> { }
-			is Event.ShowMistakes -> { }
+
+			is Event.ShowHint -> {}
+			is Event.ShowMistakes -> {}
 			is Event.DismissVictoryDialog -> {
 				handleDismissVictoryDialog()
 			}
-			Event.ColorSwitch -> { switchInputMode(InputMode.COLOR) }
-			Event.NoteSwitch -> { switchInputMode(InputMode.NOTE) }
-			Event.NumberSwitch -> { switchInputMode(InputMode.NUMBER) }
+
+			Event.ColorSwitch -> {
+				switchInputMode(InputMode.COLOR)
+			}
+
+			Event.NoteSwitch -> {
+				switchInputMode(InputMode.NOTE)
+			}
+
+			Event.NumberSwitch -> {
+				switchInputMode(InputMode.NUMBER)
+			}
 		}
 	}
 
@@ -105,34 +118,70 @@ class SudokuGameViewModel(
 	}
 
 	private fun inputNumber(number: Int) {
-		val updatedSudoku = _uiState.value.sudoku.clone()
-		val selectedCell = _uiState.value.selectedCell
-		if (selectedCell != null) {
-			if (!selectedCell.attributes.contains(CellAttributes.GENERATED)) {
-				updatedSudoku[selectedCell.row, selectedCell.col] = number
-				_uiState.update {
-					it.copy(
-						sudoku = updatedSudoku
-					)
-				}
-				viewModelScope.launch {
-					dataStoreRepository.updateCell(
-						row = selectedCell.row,
-						col = selectedCell.col,
-						newCellData = updatedSudoku[selectedCell.row, selectedCell.col]
-					)
+		val currentState = _uiState.value
+		val updatedSudoku = currentState.sudoku.clone()
+		val selectedCell = currentState.selectedCell
+
+		if (selectedCell == null || selectedCell.attributes.contains(CellAttributes.GENERATED)) {
+			return
+		}
+
+		val (row, col) = selectedCell
+		val cell = updatedSudoku[row, col]
+
+		when (currentState.inputMode) {
+			InputMode.NUMBER -> {
+				if (number == 0) {
+					updatedSudoku[row, col] = 0
+					updatedSudoku.clearCornerNotes(row, col)
+				} else {
+					updatedSudoku[row, col] = if (cell.number == number) 0 else number
 				}
 			}
+
+			InputMode.NOTE -> {
+				if (number == 0) {
+					updatedSudoku[row, col] = 0
+					updatedSudoku.clearCornerNotes(row, col)
+				} else if (number in cell.cornerNotes) {
+					updatedSudoku.removeCornerNote(row, col, number)
+				} else {
+					updatedSudoku.addCornerNote(row, col, number)
+				}
+			}
+
+			InputMode.COLOR -> { /* TODO */
+			}
 		}
-		if (_uiState.value.sudoku.getEmptyCellsCount() == 0) {
+
+		_uiState.update {
+			it.copy(sudoku = updatedSudoku)
+		}
+
+		viewModelScope.launch {
+			dataStoreRepository.updateCell(
+				row = row,
+				col = col,
+				newCellData = updatedSudoku[row, col]
+			)
+		}
+
+		if (updatedSudoku.getEmptyCellsCount() == 0) {
 			handleAllCellsFilled()
 		}
 	}
 
 	private fun resetGame() {
 		var updatedSudoku = _uiState.value.sudoku.clone()
-		val grid  =
-			updatedSudoku.getArray().map { if (it.attributes.contains(CellAttributes.GENERATED)) it else it.copy(number = 0) }.toTypedArray()
+		val grid =
+			updatedSudoku.getArray()
+				.map {
+					if (it.attributes.contains(CellAttributes.GENERATED)) it else it.copy(
+						number = 0,
+						cornerNotes = emptySet()
+					)
+				}
+				.toTypedArray()
 		updatedSudoku.set(grid)
 		_uiState.update {
 			it.copy(
@@ -172,5 +221,6 @@ class SudokuGameViewModel(
 class SudokuGameViewModelFactory(
 	private val dataStoreRepository: SudokuDataStoreRepository
 ) : ViewModelProvider.NewInstanceFactory() {
-	override fun <T : ViewModel> create(modelClass: Class<T>): T = SudokuGameViewModel(dataStoreRepository) as T
+	override fun <T : ViewModel> create(modelClass: Class<T>): T =
+		SudokuGameViewModel(dataStoreRepository) as T
 }

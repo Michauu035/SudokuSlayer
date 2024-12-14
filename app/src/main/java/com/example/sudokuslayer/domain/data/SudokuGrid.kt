@@ -139,4 +139,12 @@ class SudokuGrid() {
             cornerNotes = data[index].cornerNotes - noteNumber
         )
     }
+
+    fun clearCornerNotes(row: Int, col: Int) {
+        require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
+        val index = getIndex(row, col)
+        data[index] = data[index].copy(
+            cornerNotes = emptySet()
+        )
+    }
 }
