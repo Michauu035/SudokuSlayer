@@ -4,9 +4,9 @@ data class SudokuCellData(
 	val row: Int,
 	val col: Int,
 	val number: Int = 0,
-	val cornerNotes: MutableSet<Int> = mutableSetOf(),
-	val centerNotes: MutableSet<Int> = mutableSetOf(),
-	val attributes: MutableSet<CellAttributes> = mutableSetOf()
+	val cornerNotes: Set<Int> = setOf(),
+	val centerNotes: Set<Int> = setOf(),
+	val attributes: Set<CellAttributes> = setOf()
 )
 
 enum class CellAttributes {

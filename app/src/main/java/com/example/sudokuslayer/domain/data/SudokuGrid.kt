@@ -37,12 +37,13 @@ class SudokuGrid() {
 
     operator fun get(row: Int, col: Int): SudokuCellData {
         require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
-        return data[row * 9 + col]
+        return data[getIndex(row, col)]
     }
 
     operator fun set(row: Int, col: Int, value: Int) {
         require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
-        data[row * 9 + col] = data[row * 9 + col].copy(
+        val index = getIndex(row, col)
+        data[index] = data[index].copy(
             number = value
         )
     }
@@ -51,9 +52,7 @@ class SudokuGrid() {
         data = array
     }
 
-    operator fun iterator(): Iterator<SudokuCellData> {
-        return data.iterator()
-    }
+    operator fun iterator(): Iterator<SudokuCellData> = data.iterator()
 
     /**
      * Get row of sudoku grid
@@ -103,23 +102,41 @@ class SudokuGrid() {
 
     fun getEmptyCellsCount(): Int = data.count { it.number == 0 }
 
-    fun getArray(): Array<SudokuCellData> {
-        return data
-    }
+    fun getArray(): Array<SudokuCellData> = data
 
-    fun clone(): SudokuGrid {
-        return SudokuGrid(
-            data.clone()
-        )
-    }
+    fun clone(): SudokuGrid = SudokuGrid(data.clone())
+
+    private fun getIndex(row: Int, col: Int): Int = row * 9 + col
 
     fun addAttribute(row: Int, col: Int, attribute: CellAttributes) {
         require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
-        data[row * 9 + col].attributes.add(attribute)
+        val index = getIndex(row, col)
+        data[index] = data[index].copy(
+            attributes = data[index].attributes + attribute
+        )
     }
 
     fun removeAttribute(row: Int, col: Int, attribute: CellAttributes) {
         require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
-        data[row * 9 + col].attributes.remove(attribute)
+        val index = getIndex(row, col)
+        data[index] = data[index].copy(
+            attributes = data[index].attributes - attribute
+        )
+    }
+
+    fun addCornerNote(row: Int, col: Int, noteNumber: Int) {
+        require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
+        val index = getIndex(row, col)
+        data[index] = data[index].copy(
+            cornerNotes = data[index].cornerNotes + noteNumber
+        )
+    }
+
+    fun removeCornerNote(row: Int, col: Int, noteNumber: Int) {
+        require(row in 0 .. 8 && col in 0 .. 8) { "Index out of bounds" }
+        val index = getIndex(row, col)
+        data[index] = data[index].copy(
+            cornerNotes = data[index].cornerNotes - noteNumber
+        )
     }
 }
