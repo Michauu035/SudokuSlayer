@@ -1,7 +1,5 @@
 package com.example.sudokuslayer.domain.model
 
-import com.example.sudokuslayer.domain.data.SudokuGrid
-
 object ClassicSudokuSolver : SudokuSolver {
 	/**
 	 * Checks if a given row contains unique non-zero numbers.

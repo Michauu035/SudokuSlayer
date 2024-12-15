@@ -1,11 +1,10 @@
 package com.example.sudokuslayer.domain.model
 
-import com.example.sudokuslayer.domain.data.CellAttributes
-import com.example.sudokuslayer.domain.data.SudokuGrid
+import com.example.sudokuslayer.domain.model.SudokuGrid.Companion.withSeed
 
 class ClassicSudokuGenerator : SudokuGenerator {
     override fun createSudoku(cellsToRemove: Int, seed: Long): SudokuGrid {
-        var sudoku = SudokuGrid(seed)
+        var sudoku = SudokuGrid().withSeed(seed)
         ClassicSudokuSolver.fillGrid(sudoku)
         sudoku = removeCells(sudoku, cellsToRemove)
         for (cell in sudoku.getArray().filter { it.number != 0 }) {
@@ -15,7 +14,7 @@ class ClassicSudokuGenerator : SudokuGenerator {
     }
 
     override fun generateFullSudokuGrid(seed: Long): SudokuGrid {
-        val sudoku = SudokuGrid(seed)
+        val sudoku = SudokuGrid().withSeed(seed)
         ClassicSudokuSolver.fillGrid(sudoku)
         return sudoku
     }

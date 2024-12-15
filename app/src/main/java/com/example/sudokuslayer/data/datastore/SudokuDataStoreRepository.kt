@@ -1,9 +1,10 @@
 package com.example.sudokuslayer.data.datastore
 
 import androidx.datastore.core.DataStore
-import com.example.sudokuslayer.domain.data.CellAttributes
-import com.example.sudokuslayer.domain.data.SudokuCellData
-import com.example.sudokuslayer.domain.data.SudokuGrid
+import com.example.sudokuslayer.domain.model.CellAttributes
+import com.example.sudokuslayer.domain.model.SudokuCellData
+import com.example.sudokuslayer.domain.model.SudokuGrid
+import com.example.sudokuslayer.domain.model.SudokuGrid.Companion.withSeed
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -23,9 +24,9 @@ class SudokuDataStoreRepository(
 		val cellData = grid.dataList.map { cell -> mapToDomainCellData(cell) }.toTypedArray()
 
 		return if (grid.seed != 0L) {
-			SudokuGrid(seed = grid.seed).apply { set(cellData) }
+			SudokuGrid.fromCellData(cellData).withSeed(grid.seed)
 		} else {
-			SudokuGrid(cellData)
+			SudokuGrid.fromCellData(cellData)
 		}
 	}
 

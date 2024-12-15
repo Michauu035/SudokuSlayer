@@ -1,10 +1,11 @@
 package com.example.sudokuslayer.domain.data
 
+import com.example.sudokuslayer.domain.model.SudokuGrid
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test
 
 class SudokuGridTest {
-    private val grid: SudokuGrid = SudokuGrid(
+    private val grid: SudokuGrid = SudokuGrid.Companion.fromIntArray(
         arrayOf(
             intArrayOf(5, 3, 4, 6, 7, 8, 9, 1, 2),
             intArrayOf(6, 7, 2, 1, 9, 5, 3, 4, 8),

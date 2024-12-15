@@ -1,6 +1,5 @@
 package com.example.sudokuslayer.domain.model
 
-import com.example.sudokuslayer.domain.data.SudokuGrid
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,7 +90,7 @@ class SudokuSolverSubgridTest(
 }
 
 class SudokuSolverValidMoveTest(){
-    private val sudoku = SudokuGrid(
+    private val sudoku = SudokuGrid.fromIntArray(
         arrayOf(
             intArrayOf(5, 3, 0, 0, 7, 0, 0, 0, 0),
             intArrayOf(6, 0, 0, 1, 9, 5, 0, 0, 0),
@@ -150,7 +149,7 @@ class SudokuSolverFillTest(){
             intArrayOf(0, 0, 0, 4, 1, 9, 0, 0, 5),
             intArrayOf(0, 0, 0, 0, 8, 0, 0, 7, 9)
         )
-        val sudoku = SudokuGrid(grid)
+        val sudoku = SudokuGrid.fromIntArray(grid)
         ClassicSudokuSolver.fillGrid(sudoku)
         val expected = true
         val result = ClassicSudokuSolver.isValidSolution(sudoku)
