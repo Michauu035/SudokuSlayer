@@ -47,8 +47,9 @@ class SudokuGameViewModel(
 		data object ClearCell : Event
 		data object Undo : Event
 		data object Redo : Event
-		data object ShowHint : Event
+		data object HintCell : Event
 		data object ShowMistakes : Event
+		data object HintFillNotes : Event
 		data object ResetGame : Event
 		data object ResetNotes : Event
 		data object DismissVictoryDialog : Event
@@ -62,7 +63,8 @@ class SudokuGameViewModel(
 			is Event.Undo -> undoLastMove()
 			is Event.Redo -> redoLastMove()
 			is Event.ResetGame -> resetGame()
-			is Event.ShowHint -> {}
+			is Event.HintCell -> {}
+			is Event.HintFillNotes -> fillNotes()
 			is Event.ShowMistakes -> {}
 			is Event.DismissVictoryDialog -> handleDismissVictoryDialog()
 			is Event.SwitchInputMode -> switchInputMode(event.inputMode)
@@ -255,6 +257,19 @@ class SudokuGameViewModel(
 
 		if (updatedSudoku.getEmptyCellsCount() == 0) {
 			handleAllCellsFilled()
+		}
+	}
+
+	private fun fillNotes() {
+		viewModelScope.launch {
+			val updatedSudoku = _uiState.value.sudoku.clone()
+			updatedSudoku.fillNotes()
+			_uiState.update {
+				it.copy(
+					sudoku = updatedSudoku
+				)
+			}
+			dataStoreRepository.updateData(updatedSudoku)
 		}
 	}
 }

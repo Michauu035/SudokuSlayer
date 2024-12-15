@@ -13,6 +13,7 @@ serializationJson = "1.7.3"
 datastore = "1.1.1"
 protobuf = "0.9.4"
 protobufKotlinLite = "4.29.1"
+composeUnstyled = "1.20.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -33,6 +34,7 @@ androidx-navigation-compose = { group = "androidx.navigation", name="navigation-
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson"}
 androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore"}
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobufKotlinLite" }
+compose-unstyled = { group = "com.composables", name = "core", version.ref = "composeUnstyled"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

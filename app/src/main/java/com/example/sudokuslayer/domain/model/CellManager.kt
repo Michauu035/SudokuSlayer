@@ -68,6 +68,16 @@ class CellManager(
 		}
 	}
 
+	fun fillNotes() {
+		for (cell in data.filter { !it.attributes.contains(CellAttributes.GENERATED) }) {
+			val possibleNumbers = (1..9).filter { ClassicSudokuSolver.isValidMove(SudokuGrid.fromCellData(data), cell.row, cell.col, it) }.toSet()
+			updateCell(cell.row, cell.col) {
+				it.copy(
+					cornerNotes = possibleNumbers
+				)
+			}
+		}
+	}
 	private fun updateCell(row: Int, col: Int, updater: (SudokuCellData) -> SudokuCellData) {
 		val index = row * 9 + col
 		data[index] = updater(data[index])

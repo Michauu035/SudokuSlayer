@@ -14,9 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.composables.core.rememberDialogState
 import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
 import com.example.sudokuslayer.data.datastore.sudokuGridDataStore
 import com.example.sudokuslayer.presentation.screen.game.SudokuGameViewModel.Event
+import com.example.sudokuslayer.presentation.screen.game.components.HintsDialog
 import com.example.sudokuslayer.presentation.screen.game.components.KeyPad
 import com.example.sudokuslayer.presentation.screen.game.components.ResetDialog
 import com.example.sudokuslayer.presentation.screen.game.components.SudokuBoard
@@ -41,6 +43,8 @@ fun SudokuGameScreen(
 
 	val loading = viewModel.isLoading.collectAsState()
 	var resetDialogVisible by remember { mutableStateOf(false) }
+	var hintsDialogState = rememberDialogState(false)
+
 
 	VictoryDialog(
 		isVisible = uiState.gameState == GameState.VICTORY,
@@ -57,6 +61,15 @@ fun SudokuGameScreen(
 		onClearNotesClick = {
 			viewModel.onEvent( Event.ResetNotes )
 			resetDialogVisible = false
+		}
+	)
+
+	HintsDialog(
+		dialogState = hintsDialogState,
+		onDismissRequest = { hintsDialogState.visible = false },
+		onFillNotesClick = {
+			viewModel.onEvent(Event.HintFillNotes)
+			hintsDialogState.visible = false
 		}
 	)
 
@@ -77,7 +90,7 @@ fun SudokuGameScreen(
 			onNumberSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.NUMBER)) },
 			onNoteSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.NOTE)) },
 			onColorSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.COLOR)) },
-			onHintClick = { viewModel.onEvent(Event.ShowHint) },
+			onHintClick = { hintsDialogState.visible = true },
 			onShowMistakesClick = { viewModel.onEvent(Event.ShowMistakes) },
 			onResetClick = { resetDialogVisible = true },
 			inputMode = uiState.inputMode
