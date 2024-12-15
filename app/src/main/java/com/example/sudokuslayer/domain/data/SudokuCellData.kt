@@ -11,5 +11,6 @@ data class SudokuCellData(
 
 enum class CellAttributes {
 	SELECTED,
-	GENERATED
+	GENERATED,
+	HIGHLIGHTED
 }

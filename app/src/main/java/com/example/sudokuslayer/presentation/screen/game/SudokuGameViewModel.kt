@@ -84,17 +84,25 @@ class SudokuGameViewModel(
 	}
 
 	private fun selectCell(row: Int, col: Int) {
-		val updatedSudoku = _uiState.value.sudoku.clone()
-		val lastSelected = _uiState.value.selectedCell
-		lastSelected?.let {
-			updatedSudoku.removeAttribute(it.row, it.col, CellAttributes.SELECTED)
-		}
-		updatedSudoku.addAttribute(row, col, CellAttributes.SELECTED)
-		_uiState.update {
-			it.copy(
-				sudoku = updatedSudoku,
-				selectedCell = updatedSudoku[row, col]
-			)
+		viewModelScope.launch {
+			val updatedSudoku = _uiState.value.sudoku.clone()
+			val lastSelected = _uiState.value.selectedCell
+			lastSelected?.let {
+				updatedSudoku.removeAttribute(it.row, it.col, CellAttributes.SELECTED)
+				if ( updatedSudoku[row, col].number != 0 )
+					updatedSudoku.clearHighlightedCells()
+			}
+
+			updatedSudoku.addAttribute(row, col, CellAttributes.SELECTED)
+			val currentlySelected = updatedSudoku[row, col]
+			updatedSudoku.highlightMatchingCells(currentlySelected.number)
+
+			_uiState.update {
+				it.copy(
+					sudoku = updatedSudoku,
+					selectedCell = currentlySelected
+				)
+			}
 		}
 	}
 
@@ -117,6 +125,8 @@ class SudokuGameViewModel(
 					updatedSudoku.clearCornerNotes(row, col)
 				} else {
 					updatedSudoku[row, col] = if (cell.number == number) 0 else number
+					updatedSudoku.clearHighlightedCells()
+					updatedSudoku.highlightMatchingCells(number)
 				}
 			}
 

@@ -156,4 +156,16 @@ class SudokuGrid() {
             cornerNotes = emptySet()
         )
     }
+
+    fun highlightMatchingCells(number: Int) {
+        for (cell in data.filter { it.number == number && it.number != 0 }) {
+                addAttribute(cell.row, cell.col, CellAttributes.HIGHLIGHTED)
+        }
+    }
+
+    fun clearHighlightedCells() {
+        for (cell in data.filter { it.attributes.contains(CellAttributes.HIGHLIGHTED) }) {
+            removeAttribute(cell.row, cell.col, CellAttributes.HIGHLIGHTED)
+        }
+    }
 }

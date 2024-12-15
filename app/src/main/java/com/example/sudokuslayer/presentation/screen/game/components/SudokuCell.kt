@@ -11,8 +11,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +32,7 @@ fun SudokuCell(
 	cellData: SudokuCellData,
 	onClick: () -> Unit,
 	isGenerated: Boolean = false,
+	isHighlighted: Boolean = false,
 	selected: Boolean = false,
 ) {
 	val bgColor =
@@ -35,6 +40,7 @@ fun SudokuCell(
 	val weight = if (isGenerated) FontWeight.Bold else FontWeight.Normal
 	val textColor =
 		if (isGenerated) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.tertiary
+	val highlightedColor = MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp)
 
 	Box(
 		modifier = Modifier
@@ -47,38 +53,44 @@ fun SudokuCell(
 		contentAlignment = Alignment.Center
 
 	) {
-		if (cellData.number != 0) {
-			Text(
-				text = cellData.number.toString(),
-				modifier = Modifier
-					.fillMaxSize()
-					.wrapContentHeight(align = Alignment.CenterVertically),
-				style = MaterialTheme.typography.bodyLarge,
-				textAlign = TextAlign.Center,
-				fontWeight = weight,
-				color = textColor
-			)
-		} else {
-			LazyVerticalGrid(
-				columns = GridCells.Fixed(3),
-				modifier = Modifier.fillMaxSize(),
-				verticalArrangement = Arrangement.SpaceBetween
-			) {
-				items(cellData.cornerNotes.toList().sorted()) { note ->
-					Text(
-						text = note.toString(),
-						modifier = Modifier
-							.fillMaxSize()
-							.wrapContentHeight(align = Alignment.CenterVertically),
-//						style = MaterialTheme.typography.bodySmall,
-						fontSize = 10.sp,
-						lineHeight = 10.sp,
-						textAlign = TextAlign.Center,
-						fontWeight = weight,
-						color = textColor
-					)
+		Surface(
+			modifier = Modifier.padding(2.dp),
+			color = if (isHighlighted && !selected) highlightedColor else bgColor,
+			shape = if (isHighlighted && !selected) CircleShape else RoundedCornerShape(0.1.dp)
+		) {
+			if (cellData.number != 0) {
+				Text(
+					text = cellData.number.toString(),
+					modifier = Modifier
+						.fillMaxSize()
+						.wrapContentHeight(align = Alignment.CenterVertically),
+					style = MaterialTheme.typography.bodyLarge,
+					textAlign = TextAlign.Center,
+					fontWeight = weight,
+					color = textColor
+				)
+			} else {
+				LazyVerticalGrid(
+					columns = GridCells.Fixed(3),
+					modifier = Modifier.fillMaxSize(),
+					verticalArrangement = Arrangement.SpaceBetween
+				) {
+					items(cellData.cornerNotes.toList().sorted()) { note ->
+						Text(
+							text = note.toString(),
+							modifier = Modifier
+								.fillMaxSize()
+								.wrapContentHeight(align = Alignment.CenterVertically),
+							fontSize = 10.sp,
+							lineHeight = 10.sp,
+							textAlign = TextAlign.Center,
+							fontWeight = weight,
+							color = textColor
+						)
+					}
 				}
 			}
+
 		}
 	}
 }
