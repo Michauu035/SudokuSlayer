@@ -7,9 +7,7 @@ class ClassicSudokuGenerator : SudokuGenerator {
         var sudoku = SudokuGrid().withSeed(seed)
         ClassicSudokuSolver.fillGrid(sudoku)
         sudoku = removeCells(sudoku, cellsToRemove)
-        for (cell in sudoku.getArray().filter { it.number != 0 }) {
-            sudoku.addAttribute(cell.row, cell.col, CellAttributes.GENERATED)
-        }
+        sudoku.lockGeneratedCells()
         return sudoku
     }
 

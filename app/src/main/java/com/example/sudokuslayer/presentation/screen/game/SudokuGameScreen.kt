@@ -22,6 +22,7 @@ import com.example.sudokuslayer.presentation.screen.game.components.ResetDialog
 import com.example.sudokuslayer.presentation.screen.game.components.SudokuBoard
 import com.example.sudokuslayer.presentation.screen.game.components.VictoryDialog
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
+import com.example.sudokuslayer.presentation.screen.game.model.InputMode
 
 @Composable
 fun SudokuGameScreen(
@@ -49,10 +50,14 @@ fun SudokuGameScreen(
 	ResetDialog(
 		isVisible = resetDialogVisible,
 		onConfirmClick = {
-			viewModel.onEvent(Event.Reset)
+			viewModel.onEvent(Event.ResetGame)
 			resetDialogVisible = false
 		},
-		onDismissClick = { resetDialogVisible = false }
+		onDismissClick = { resetDialogVisible = false },
+		onClearNotesClick = {
+			viewModel.onEvent( Event.ResetNotes )
+			resetDialogVisible = false
+		}
 	)
 
 
@@ -69,9 +74,9 @@ fun SudokuGameScreen(
 			onClearClick = { viewModel.onEvent(Event.ClearCell) },
 			onUndoClick = { viewModel.onEvent(Event.Undo) },
 			onRedoClick = { viewModel.onEvent(Event.Redo) },
-			onNumberSwitchClick = { viewModel.onEvent(Event.NumberSwitch) },
-			onNoteSwitchClick = { viewModel.onEvent(Event.NoteSwitch) },
-			onColorSwitchClick = { viewModel.onEvent(Event.ColorSwitch) },
+			onNumberSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.NUMBER)) },
+			onNoteSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.NOTE)) },
+			onColorSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.COLOR)) },
 			onHintClick = { viewModel.onEvent(Event.ShowHint) },
 			onShowMistakesClick = { viewModel.onEvent(Event.ShowMistakes) },
 			onResetClick = { resetDialogVisible = true },

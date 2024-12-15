@@ -42,6 +42,8 @@ fun SudokuCell(
 		if (isGenerated) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.tertiary
 	val highlightedColor = MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp)
 
+	val ishHighlightApplicable = isHighlighted && !selected && cellData.number != 0
+
 	Box(
 		modifier = Modifier
 			.background(bgColor)
@@ -55,8 +57,8 @@ fun SudokuCell(
 	) {
 		Surface(
 			modifier = Modifier.padding(2.dp),
-			color = if (isHighlighted && !selected) highlightedColor else bgColor,
-			shape = if (isHighlighted && !selected) CircleShape else RoundedCornerShape(0.1.dp)
+			color = if (ishHighlightApplicable) highlightedColor else bgColor,
+			shape = if (ishHighlightApplicable) CircleShape else RoundedCornerShape(0.1.dp)
 		) {
 			if (cellData.number != 0) {
 				Text(

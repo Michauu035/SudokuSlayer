@@ -1,11 +1,14 @@
 package com.example.sudokuslayer.presentation.screen.game
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
 import com.example.sudokuslayer.domain.model.CellAttributes
 import com.example.sudokuslayer.domain.model.ClassicSudokuSolver
+import com.example.sudokuslayer.domain.model.SudokuCellData
+import com.example.sudokuslayer.domain.model.SudokuGrid
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
 import com.example.sudokuslayer.presentation.screen.game.model.InputMode
 import com.example.sudokuslayer.presentation.screen.game.model.SudokuGameUiState
@@ -40,16 +43,15 @@ class SudokuGameViewModel(
 	sealed interface Event {
 		data class SelectCell(val row: Int, val col: Int) : Event
 		data class InputNumber(val number: Int) : Event
+		data class SwitchInputMode(val inputMode: InputMode) : Event
 		data object ClearCell : Event
 		data object Undo : Event
 		data object Redo : Event
 		data object ShowHint : Event
 		data object ShowMistakes : Event
-		data object Reset : Event
+		data object ResetGame : Event
+		data object ResetNotes : Event
 		data object DismissVictoryDialog : Event
-		data object NumberSwitch : Event
-		data object NoteSwitch : Event
-		data object ColorSwitch : Event
 	}
 
 	fun onEvent(event: Event) {
@@ -59,13 +61,12 @@ class SudokuGameViewModel(
 			is Event.ClearCell -> inputNumber(0)
 			is Event.Undo -> undoLastMove()
 			is Event.Redo -> redoLastMove()
-			is Event.Reset -> resetGame()
+			is Event.ResetGame -> resetGame()
 			is Event.ShowHint -> {}
 			is Event.ShowMistakes -> {}
 			is Event.DismissVictoryDialog -> handleDismissVictoryDialog()
-			is Event.ColorSwitch -> switchInputMode(InputMode.COLOR)
-			is Event.NoteSwitch -> switchInputMode(InputMode.NOTE)
-			is Event.NumberSwitch -> switchInputMode(InputMode.NUMBER)
+			is Event.SwitchInputMode -> switchInputMode(event.inputMode)
+			is Event.ResetNotes -> resetNotes()
 		}
 	}
 
@@ -89,7 +90,7 @@ class SudokuGameViewModel(
 			val lastSelected = _uiState.value.selectedCell
 			lastSelected?.let {
 				updatedSudoku.removeAttribute(it.row, it.col, CellAttributes.SELECTED)
-				if ( updatedSudoku[row, col].number != 0 )
+				if (updatedSudoku[row, col].number != 0)
 					updatedSudoku.clearHighlightedCells()
 			}
 
@@ -107,83 +108,49 @@ class SudokuGameViewModel(
 	}
 
 	private fun inputNumber(number: Int) {
-		val currentState = _uiState.value
-		val updatedSudoku = currentState.sudoku.clone()
-		val selectedCell = currentState.selectedCell
-
-		if (selectedCell == null || selectedCell.attributes.contains(CellAttributes.GENERATED)) {
-			return
-		}
-
-		val (row, col) = selectedCell
-		val cell = updatedSudoku[row, col]
-
-		when (currentState.inputMode) {
-			InputMode.NUMBER -> {
-				if (number == 0) {
-					updatedSudoku[row, col] = 0
-					updatedSudoku.clearCornerNotes(row, col)
-				} else {
-					updatedSudoku[row, col] = if (cell.number == number) 0 else number
-					updatedSudoku.clearHighlightedCells()
-					updatedSudoku.highlightMatchingCells(number)
-				}
-			}
-
-			InputMode.NOTE -> {
-				if (number == 0) {
-					updatedSudoku[row, col] = 0
-					updatedSudoku.clearCornerNotes(row, col)
-				} else if (number in cell.cornerNotes) {
-					updatedSudoku.removeCornerNote(row, col, number)
-				} else {
-					updatedSudoku.addCornerNote(row, col, number)
-				}
-			}
-
-			InputMode.COLOR -> { /* TODO */
-			}
-		}
-
-		lastMoves.add(SudokuMove(previousCellData = cell, newCellData = updatedSudoku[row, col]))
-
-		_uiState.update {
-			it.copy(sudoku = updatedSudoku)
-		}
-
 		viewModelScope.launch {
-			dataStoreRepository.updateCell(
-				row = row,
-				col = col,
-				newCellData = updatedSudoku[row, col]
-			)
-		}
+			val currentState = _uiState.value
+			val updatedSudoku = currentState.sudoku.clone()
+			val selectedCell: SudokuCellData = currentState.selectedCell ?: return@launch
 
-		if (updatedSudoku.getEmptyCellsCount() == 0) {
-			handleAllCellsFilled()
+			if (selectedCell.attributes.contains(CellAttributes.GENERATED)) return@launch
+			val backupCell = updatedSudoku[selectedCell.row, selectedCell.col]
+
+			when (currentState.inputMode) {
+				InputMode.NUMBER -> handleNumberInput(number, updatedSudoku, selectedCell)
+
+				InputMode.NOTE -> handleNoteInput(number, updatedSudoku, selectedCell)
+
+				InputMode.COLOR -> { }
+			}
+
+			saveMoveAndUpdateState(backupCell, updatedSudoku)
 		}
 	}
 
 	private fun resetGame() {
 		viewModelScope.launch {
 			var updatedSudoku = _uiState.value.sudoku.clone()
-			val grid =
-				updatedSudoku.getArray()
-					.map {
-						if (it.attributes.contains(CellAttributes.GENERATED)) it else it.copy(
-							number = 0,
-							cornerNotes = emptySet()
-						)
-					}
-					.toTypedArray()
-
-			updatedSudoku.set(grid)
+			updatedSudoku.resetGame()
 			_uiState.update {
 				it.copy(
 					sudoku = updatedSudoku
 				)
 			}
 
+			dataStoreRepository.updateData(updatedSudoku)
+		}
+	}
+
+	private fun resetNotes() {
+		viewModelScope.launch {
+			val updatedSudoku = _uiState.value.sudoku.clone()
+			updatedSudoku.clearNotes()
+			_uiState.update {
+				it.copy(
+					sudoku = updatedSudoku
+				)
+			}
 			dataStoreRepository.updateData(updatedSudoku)
 		}
 	}
@@ -215,23 +182,22 @@ class SudokuGameViewModel(
 		}
 	}
 
-	private fun undoLastMove() {
-		if (lastMoves.isEmpty())
+	private fun handleMove(
+		moveStack: ArrayDeque<SudokuMove>,
+		targetStack: ArrayDeque<SudokuMove>
+	) {
+		if (moveStack.isEmpty())
 			return
 
 		viewModelScope.launch {
-			val (previousCellData, newCellData) = lastMoves.removeLast()
-			val currentState = _uiState.value
-			val updatedSudoku = currentState.sudoku.clone()
+			val (previousCellData, newCellData) = moveStack.removeLast()
+			val updatedSudoku = _uiState.value.sudoku.clone()
 
+			Log.d("", "move: ${previousCellData.number}")
 			updatedSudoku.replaceCell(previousCellData.row, previousCellData.col, previousCellData)
-			futureMoves.add(SudokuMove(newCellData, previousCellData))
+			targetStack.add(SudokuMove(newCellData, previousCellData))
 
-			_uiState.update {
-				it.copy(
-					sudoku = updatedSudoku
-				)
-			}
+			_uiState.update { it.copy(sudoku = updatedSudoku) }
 
 			dataStoreRepository.updateCell(
 				row = previousCellData.row,
@@ -241,29 +207,54 @@ class SudokuGameViewModel(
 		}
 	}
 
-	private fun redoLastMove() {
-		if (futureMoves.isEmpty())
-			return
+	private fun undoLastMove() = handleMove(lastMoves, futureMoves)
+
+	private fun redoLastMove() = handleMove(futureMoves, lastMoves)
+
+	private fun handleNumberInput(number: Int, sudoku: SudokuGrid, cellData: SudokuCellData) {
+		val (row, col) = cellData
+		if (number == 0) {
+			sudoku[row, col] = 0
+			sudoku.clearCornerNotes(row, col)
+		} else {
+			sudoku[row, col] = if (cellData.number == number) 0 else number
+			sudoku.clearHighlightedCells()
+			sudoku.highlightMatchingCells(number)
+		}
+	}
+
+	private fun handleNoteInput(number: Int, sudoku: SudokuGrid, cellData: SudokuCellData) {
+		val (row, col) = cellData
+		if (number == 0) {
+			sudoku[row, col] = 0
+			sudoku.clearCornerNotes(row, col)
+		} else if (number in cellData.cornerNotes) {
+			sudoku.removeCornerNote(row, col, number)
+		} else {
+			sudoku.addCornerNote(row, col, number)
+		}
+	}
+
+	private fun saveMoveAndUpdateState(selectedCell: SudokuCellData, updatedSudoku: SudokuGrid) {
+		val (row, col) = selectedCell
+		lastMoves.add(
+			SudokuMove(
+				previousCellData = selectedCell,
+				newCellData = updatedSudoku[row, col]
+			)
+		)
+
+		Log.d("", "move: ${selectedCell.number}")
+		_uiState.update {
+			it.copy(sudoku = updatedSudoku)
+		}
 
 		viewModelScope.launch {
-			val (previousCellData, newCellData) = futureMoves.removeLast()
-			val currentState = _uiState.value
-			val updatedSudoku = currentState.sudoku.clone()
+			dataStoreRepository.updateCell(row, col, updatedSudoku[row, col])
+		}
 
-			updatedSudoku.replaceCell(previousCellData.row, previousCellData.col, previousCellData)
-			lastMoves.add(SudokuMove(newCellData, previousCellData))
-
-			_uiState.update {
-				it.copy(
-					sudoku = updatedSudoku
-				)
-			}
-
-			dataStoreRepository.updateCell(
-				row = previousCellData.row,
-				col = previousCellData.col,
-				newCellData = updatedSudoku[previousCellData.row, previousCellData.col]
-			)
+		if (updatedSudoku.getEmptyCellsCount() == 0) {
+			handleAllCellsFilled()
 		}
 	}
 }

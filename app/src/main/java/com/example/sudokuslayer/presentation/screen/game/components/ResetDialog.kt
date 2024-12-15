@@ -9,7 +9,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 
 @Composable
-fun ResetDialog(isVisible: Boolean, onConfirmClick: () -> Unit, onDismissClick: () -> Unit) {
+fun ResetDialog(
+	isVisible: Boolean,
+	onConfirmClick: () -> Unit,
+	onDismissClick: () -> Unit,
+	onClearNotesClick: () -> Unit,
+) {
 	if (isVisible) {
 		AlertDialog(
 			title = {
@@ -24,9 +29,12 @@ fun ResetDialog(isVisible: Boolean, onConfirmClick: () -> Unit, onDismissClick: 
 				}
 			},
 			dismissButton = {
-				TextButton(onDismissClick) {
-					Text("No")
-				}
+					TextButton(onClearNotesClick) {
+						Text("Clear notes")
+					}
+					TextButton(onDismissClick) {
+						Text("No")
+					}
 			}
 		)
 	}

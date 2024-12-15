@@ -129,6 +129,8 @@ class SudokuGrid(
 		cellManager.clearHighlightedCells()
 	}
 
+	fun lockGeneratedCells() = cellManager.lockGeneratedCells()
+
 	fun resetGame() = cellManager.resetGame()
 
 	fun clearNotes() = cellManager.clearNotes()

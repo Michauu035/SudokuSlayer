@@ -44,6 +44,16 @@ class CellManager(
 		}
 	}
 
+	fun lockGeneratedCells() {
+		for (cell in data.filter { it.number != 0 }) {
+			updateCell(cell.row, cell.col) {
+				it.copy(
+					attributes = it.attributes + CellAttributes.GENERATED
+				)
+			}
+		}
+	}
+
 	fun highlightMatchingCells(number: Int) {
 		if (number == 0)
 			return
