@@ -5,7 +5,7 @@ import com.example.sudoku.model.SudokuGrid
 
 data class SudokuGameUiState(
 	val sudoku: SudokuGrid = SudokuGrid(),
-	val selectedCell: SudokuCellData? = null,
+	val selectedCell: Pair<Int, Int>? = null,
 	val gameState: GameState = GameState.PLAYING,
 	val inputMode: InputMode = InputMode.NUMBER,
 	val cellsToRemove: Int = 20 // Temporarly for testing purposes

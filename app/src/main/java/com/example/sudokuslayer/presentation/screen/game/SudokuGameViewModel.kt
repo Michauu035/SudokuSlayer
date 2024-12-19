@@ -91,7 +91,7 @@ class SudokuGameViewModel(
 			val updatedSudoku = _uiState.value.sudoku.clone()
 			val lastSelected = _uiState.value.selectedCell
 			lastSelected?.let {
-				updatedSudoku.removeAttribute(it.row, it.col, CellAttributes.SELECTED)
+				updatedSudoku.removeAttribute(it.first, it.second, CellAttributes.SELECTED)
 				if (updatedSudoku[row, col].number != 0)
 					updatedSudoku.clearHighlightedCells()
 			}
@@ -103,7 +103,7 @@ class SudokuGameViewModel(
 			_uiState.update {
 				it.copy(
 					sudoku = updatedSudoku,
-					selectedCell = currentlySelected
+					selectedCell = currentlySelected.row to currentlySelected.col
 				)
 			}
 		}
@@ -113,10 +113,10 @@ class SudokuGameViewModel(
 		viewModelScope.launch {
 			val currentState = _uiState.value
 			val updatedSudoku = currentState.sudoku.clone()
-			val selectedCell: SudokuCellData = currentState.selectedCell ?: return@launch
+			val selectedCell: Pair<Int, Int> = currentState.selectedCell ?: return@launch
 
-			if (selectedCell.attributes.contains(CellAttributes.GENERATED)) return@launch
-			val backupCell = updatedSudoku[selectedCell.row, selectedCell.col]
+			if (updatedSudoku[selectedCell.first, selectedCell.second].attributes.contains(CellAttributes.GENERATED)) return@launch
+			val backupCell = updatedSudoku[selectedCell.first, selectedCell.second]
 
 			when (currentState.inputMode) {
 				InputMode.NUMBER -> handleNumberInput(number, updatedSudoku, selectedCell)
@@ -213,40 +213,40 @@ class SudokuGameViewModel(
 
 	private fun redoLastMove() = handleMove(futureMoves, lastMoves)
 
-	private fun handleNumberInput(number: Int, sudoku: SudokuGrid, cellData: SudokuCellData) {
-		val (row, col) = cellData
+	private fun handleNumberInput(number: Int, sudoku: SudokuGrid, selectedCell: Pair<Int, Int>) {
+		val (row, col) = selectedCell
 		if (number == 0) {
 			sudoku[row, col] = 0
 			sudoku.clearCornerNotes(row, col)
 		} else {
-			sudoku[row, col] = if (cellData.number == number) 0 else number
+			sudoku[row, col] = if (sudoku[row, col].number == number) 0 else number
 			sudoku.clearHighlightedCells()
 			sudoku.highlightMatchingCells(number)
 		}
 	}
 
-	private fun handleNoteInput(number: Int, sudoku: SudokuGrid, cellData: SudokuCellData) {
-		val (row, col) = cellData
+	private fun handleNoteInput(number: Int, sudoku: SudokuGrid, selectedCell: Pair<Int, Int>) {
+		val (row, col) = selectedCell
 		if (number == 0) {
 			sudoku[row, col] = 0
 			sudoku.clearCornerNotes(row, col)
-		} else if (number in cellData.cornerNotes) {
+		} else if (number in sudoku[row, col].cornerNotes) {
 			sudoku.removeCornerNote(row, col, number)
 		} else {
 			sudoku.addCornerNote(row, col, number)
 		}
 	}
 
-	private fun saveMoveAndUpdateState(selectedCell: SudokuCellData, updatedSudoku: SudokuGrid) {
-		val (row, col) = selectedCell
+	private fun saveMoveAndUpdateState(previousCellData: SudokuCellData, updatedSudoku: SudokuGrid) {
+		val (row, col) = previousCellData
 		lastMoves.add(
 			SudokuMove(
-				previousCellData = selectedCell,
+				previousCellData = previousCellData,
 				newCellData = updatedSudoku[row, col]
 			)
 		)
 
-		Log.d("", "move: ${selectedCell.number}")
+		Log.d("", "move: ${previousCellData.number}")
 		_uiState.update {
 			it.copy(sudoku = updatedSudoku)
 		}

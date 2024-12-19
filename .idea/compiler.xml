@@ -6,8 +6,6 @@
       <module name="SudokuSlayer.DLXAlgorithm.test" target="11" />
       <module name="SudokuSlayer.sudoku-algorithms.main" target="11" />
       <module name="SudokuSlayer.sudoku-algorithms.test" target="11" />
-      <module name="SudokuSlayer.sudoku-core.main" target="11" />
-      <module name="SudokuSlayer.sudoku-core.test" target="11" />
     </bytecodeTargetLevel>
   </component>
 </project>
