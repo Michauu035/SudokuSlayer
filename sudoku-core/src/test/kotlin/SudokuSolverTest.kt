@@ -1,5 +1,5 @@
-package com.example.sudokuslayer.domain.model
-
+import com.example.sudoku.model.SudokuGrid
+import com.example.sudoku.solver.ClassicSudokuSolver
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

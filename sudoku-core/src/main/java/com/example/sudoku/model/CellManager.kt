@@ -1,4 +1,6 @@
-package com.example.sudokuslayer.domain.model
+package com.example.sudoku.model
+
+import com.example.sudoku.solver.ClassicSudokuSolver
 
 class CellManager(
 	private val data: Array<SudokuCellData>

@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.sudoku.model.CellAttributes
+import com.example.sudoku.model.SudokuCellData
+import com.example.sudoku.model.SudokuGrid
+import com.example.sudoku.solver.ClassicSudokuSolver
 import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
-import com.example.sudokuslayer.domain.model.CellAttributes
-import com.example.sudokuslayer.domain.model.ClassicSudokuSolver
-import com.example.sudokuslayer.domain.model.SudokuCellData
-import com.example.sudokuslayer.domain.model.SudokuGrid
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
 import com.example.sudokuslayer.presentation.screen.game.model.InputMode
 import com.example.sudokuslayer.presentation.screen.game.model.SudokuGameUiState

@@ -1,5 +1,6 @@
-package com.example.sudokuslayer.domain.model
+package com.example.sudoku.generator
 
+import com.example.sudoku.model.SudokuGrid
 import kotlin.random.Random
 
 interface SudokuGenerator {

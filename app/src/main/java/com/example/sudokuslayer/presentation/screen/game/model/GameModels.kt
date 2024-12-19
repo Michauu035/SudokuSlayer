@@ -1,7 +1,7 @@
 package com.example.sudokuslayer.presentation.screen.game.model
 
-import com.example.sudokuslayer.domain.model.SudokuCellData
-import com.example.sudokuslayer.domain.model.SudokuGrid
+import com.example.sudoku.model.SudokuCellData
+import com.example.sudoku.model.SudokuGrid
 
 data class SudokuGameUiState(
 	val sudoku: SudokuGrid = SudokuGrid(),

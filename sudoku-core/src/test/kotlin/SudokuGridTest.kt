@@ -1,6 +1,5 @@
-package com.example.sudokuslayer.domain.data
 
-import com.example.sudokuslayer.domain.model.SudokuGrid
+import com.example.sudoku.model.SudokuGrid
 import org.junit.Assert.assertArrayEquals
 import org.junit.Test
 

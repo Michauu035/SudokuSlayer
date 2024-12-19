@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
-import com.example.sudokuslayer.domain.model.SudokuGrid
-import com.example.sudokuslayer.domain.model.ClassicSudokuGenerator
+import com.example.sudoku.model.SudokuGrid
+import com.example.sudoku.generator.ClassicSudokuGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

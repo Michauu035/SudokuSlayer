@@ -14,8 +14,8 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.sudokuslayer.domain.model.CellAttributes
-import com.example.sudokuslayer.domain.model.SudokuGrid
+import com.example.sudoku.model.CellAttributes
+import com.example.sudoku.model.SudokuGrid
 
 @Composable
 fun SudokuBoard(

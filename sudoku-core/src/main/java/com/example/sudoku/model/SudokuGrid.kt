@@ -1,4 +1,4 @@
-package com.example.sudokuslayer.domain.model
+package com.example.sudoku.model
 
 import kotlin.random.Random
 

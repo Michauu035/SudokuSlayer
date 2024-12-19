@@ -1,4 +1,6 @@
-package com.example.sudokuslayer.domain.model
+package com.example.sudoku.solver
+
+import com.example.sudoku.model.SudokuGrid
 
 interface SudokuSolver {
     fun checkRow(row: IntArray): Boolean

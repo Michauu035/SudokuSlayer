@@ -1,13 +1,13 @@
 package com.example.sudokuslayer.data.datastore
 
 import androidx.datastore.core.DataStore
-import com.example.sudokuslayer.domain.model.CellAttributes
-import com.example.sudokuslayer.domain.model.SudokuCellData
-import com.example.sudokuslayer.domain.model.SudokuGrid
-import com.example.sudokuslayer.domain.model.SudokuGrid.Companion.withSeed
+import com.example.sudoku.model.CellAttributes
+import com.example.sudoku.model.SudokuCellData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import com.example.sudoku.model.SudokuGrid
+import com.example.sudoku.model.SudokuGrid.Companion.withSeed
 import sudoku.SudokuCell.Attributes
 import sudoku.SudokuCell as SudokuCellProto
 import sudoku.SudokuGrid as SudokuGridProto

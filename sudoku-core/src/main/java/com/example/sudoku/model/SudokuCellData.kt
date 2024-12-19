@@ -1,4 +1,4 @@
-package com.example.sudokuslayer.domain.model
+package com.example.sudoku.model
 
 data class SudokuCellData(
 	val row: Int,

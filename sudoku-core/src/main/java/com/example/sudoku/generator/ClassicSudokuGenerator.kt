@@ -1,6 +1,8 @@
-package com.example.sudokuslayer.domain.model
+package com.example.sudoku.generator
 
-import com.example.sudokuslayer.domain.model.SudokuGrid.Companion.withSeed
+import com.example.sudoku.model.SudokuGrid
+import com.example.sudoku.model.SudokuGrid.Companion.withSeed
+import com.example.sudoku.solver.ClassicSudokuSolver
 
 class ClassicSudokuGenerator : SudokuGenerator {
     override fun createSudoku(cellsToRemove: Int, seed: Long): SudokuGrid {
