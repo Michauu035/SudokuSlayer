@@ -9,10 +9,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -30,57 +38,73 @@ import com.example.sudokuslayer.presentation.navigation.Destination
 import com.example.sudokuslayer.presentation.screen.sudokucreator.SudokuCreatorViewModel.Event
 import com.example.sudokuslayer.presentation.screen.sudokucreator.components.HorizontalSelect
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SudokuCreatorScreen(
 	context: Context,
 	navController: NavController,
+	openDrawer: () -> Unit,
 	viewModel: SudokuCreatorViewModel = viewModel(factory = SudokuCreatorViewModelFactory(
 		SudokuDataStoreRepository(context.sudokuGridDataStore))),
-	modifier: Modifier = Modifier
 ) {
 	val uiState = viewModel.uiState.collectAsState().value
 
-	Column(
-		modifier = modifier.fillMaxSize(),
-		horizontalAlignment = Alignment.CenterHorizontally,
-		verticalArrangement = Arrangement.Center
-	) {
-		Box(contentAlignment = Alignment.Center,
-			modifier = Modifier
-			.size(200.dp)
-			.background(color = MaterialTheme.colorScheme.error))
-		{
-			Text(
-				"PREVIEW",
-				style = MaterialTheme.typography.displayMedium
+	Scaffold(
+		modifier = Modifier.fillMaxSize(),
+		topBar = {
+			CenterAlignedTopAppBar(
+				title = { },
+				navigationIcon = {
+					IconButton(onClick = openDrawer) {
+						Icon(Icons.Default.Menu, "")
+					}
+				}
 			)
 		}
-		Spacer(Modifier.height(50.dp))
-		HorizontalSelect(
-			text = uiState.difficulty.name.lowercase().replaceFirstChar { it.uppercase() },
-			onLeftClick = { viewModel.onEvent(Event.ChangeDifficulty(-1)) },
-			onRightClick = { viewModel.onEvent(Event.ChangeDifficulty(1))},
-			modifier = Modifier.fillMaxWidth(0.8f)
-		)
-		when(uiState.screenState) {
-			ScreenState.INITIAL -> {
-				Button(
-					enabled = uiState.hasSavedData,
-					onClick = { viewModel.onEvent(Event.LoadSudoku) }
-				) {
-					Text("Continue")
-				}
-				Button(onClick = { viewModel.onEvent(Event.NewGame) }) {
-					Text("New game")
-				}
+	) { innerPadding ->
+		Column(
+			modifier = Modifier.fillMaxSize().padding(innerPadding),
+			horizontalAlignment = Alignment.CenterHorizontally,
+			verticalArrangement = Arrangement.Center
+		) {
+			Box(contentAlignment = Alignment.Center,
+				modifier = Modifier
+					.size(200.dp)
+					.background(color = MaterialTheme.colorScheme.error))
+			{
+				Text(
+					"PREVIEW",
+					style = MaterialTheme.typography.displayMedium
+				)
 			}
-			ScreenState.LOADING -> {
-				CircularProgressIndicator()
-			}
-			ScreenState.DONE -> {
-				navController.navigate(Destination.SudokuGame)
+			Spacer(Modifier.height(50.dp))
+			HorizontalSelect(
+				text = uiState.difficulty.name.lowercase().replaceFirstChar { it.uppercase() },
+				onLeftClick = { viewModel.onEvent(Event.ChangeDifficulty(-1)) },
+				onRightClick = { viewModel.onEvent(Event.ChangeDifficulty(1))},
+				modifier = Modifier.fillMaxWidth(0.8f)
+			)
+			when(uiState.screenState) {
+				ScreenState.INITIAL -> {
+					Button(
+						enabled = uiState.hasSavedData,
+						onClick = { viewModel.onEvent(Event.LoadSudoku) }
+					) {
+						Text("Continue ${uiState.savedDifficulty} - ${uiState.elapsedTime}")
+					}
+					Button(onClick = { viewModel.onEvent(Event.NewGame) }) {
+						Text("New game")
+					}
+				}
+				ScreenState.LOADING -> {
+					CircularProgressIndicator()
+				}
+				ScreenState.DONE -> {
+					navController.navigate(Destination.SudokuGame)
+				}
 			}
 		}
+
 	}
 }
 
@@ -89,6 +113,7 @@ fun SudokuCreatorScreen(
 private fun SudokuCreatorScreenPreview() {
 	SudokuCreatorScreen(
 		context = LocalContext.current,
-		navController = rememberNavController()
+		navController = rememberNavController(),
+		openDrawer = { }
 	)
 }

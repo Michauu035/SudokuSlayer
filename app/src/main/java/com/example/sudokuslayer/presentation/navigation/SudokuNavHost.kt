@@ -11,17 +11,19 @@ import com.example.sudokuslayer.presentation.screen.game.SudokuGameScreen
 import com.example.sudokuslayer.presentation.screen.sudokucreator.SudokuCreatorScreen
 
 @Composable
-fun SudokuNavHost(navController: NavHostController) {
+fun SudokuNavHost(navController: NavHostController, openDrawer: () -> Unit) {
 	NavHost(
 		navController = navController,
 		startDestination = SudokuCreator
 	) {
 		composable<SudokuGame> { SudokuGameScreen(
-			context = LocalContext.current
+			context = LocalContext.current,
+			openDrawer = openDrawer
 		) }
 		composable<SudokuCreator> { SudokuCreatorScreen(
 			context = LocalContext.current,
-			navController = navController
+			navController = navController,
+			openDrawer = openDrawer
 		) }
 	}
 }

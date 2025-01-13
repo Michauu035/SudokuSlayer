@@ -3,11 +3,12 @@ package com.example.sudokuslayer.data.datastore
 import androidx.datastore.core.DataStore
 import com.example.sudoku.model.CellAttributes
 import com.example.sudoku.model.SudokuCellData
+import com.example.sudoku.model.SudokuGrid
+import com.example.sudoku.model.SudokuGrid.Companion.withSeed
+import com.example.sudokuslayer.presentation.screen.sudokucreator.SudokuDifficulty
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import com.example.sudoku.model.SudokuGrid
-import com.example.sudoku.model.SudokuGrid.Companion.withSeed
 import sudoku.SudokuCell.Attributes
 import sudoku.SudokuCell as SudokuCellProto
 import sudoku.SudokuGrid as SudokuGridProto
@@ -19,6 +20,20 @@ class SudokuDataStoreRepository(
 	val sudokuGridProto: Flow<SudokuGrid> = dataStore.data
 			.map { mapToDomainSudokuGrid(it) }
 			.distinctUntilChanged()
+
+	val difficultyProto: Flow<SudokuDifficulty> = dataStore.data.map { data ->
+		when (data.difficulty) {
+			SudokuGridProto.Difficulty.DIFFICULTY_EASY -> SudokuDifficulty.EASY
+			SudokuGridProto.Difficulty.DIFFICULTY_MEDIUM -> SudokuDifficulty.MEDIUM
+			SudokuGridProto.Difficulty.DIFFICULTY_HARD -> SudokuDifficulty.HARD
+			SudokuGridProto.Difficulty.DIFFICULTY_EXPERT -> SudokuDifficulty.EXPERT
+			else -> SudokuDifficulty.EASY
+		}
+	}.distinctUntilChanged()
+
+	val elapsedTimeProto: Flow<Long> = dataStore.data.map { data ->
+		data.elapsedTime
+	}.distinctUntilChanged()
 
 	private fun mapToDomainSudokuGrid(grid: SudokuGridProto): SudokuGrid {
 		val cellData = grid.dataList.map { cell -> mapToDomainCellData(cell) }.toTypedArray()
@@ -93,6 +108,28 @@ class SudokuDataStoreRepository(
 			protoGrid.toBuilder()
 				.clearData()
 				.addAllData(updatedDataList)
+				.build()
+		}
+	}
+
+	suspend fun updateDifficulty(difficulty: SudokuDifficulty) {
+		dataStore.updateData { proto ->
+			proto.toBuilder()
+				.setDifficulty(
+					when (difficulty) {
+						SudokuDifficulty.EASY -> SudokuGridProto.Difficulty.DIFFICULTY_EASY
+						SudokuDifficulty.MEDIUM -> SudokuGridProto.Difficulty.DIFFICULTY_MEDIUM
+						SudokuDifficulty.HARD -> SudokuGridProto.Difficulty.DIFFICULTY_HARD
+						SudokuDifficulty.EXPERT -> SudokuGridProto.Difficulty.DIFFICULTY_EXPERT
+					}
+				).build()
+		}
+	}
+
+	suspend fun updateElapsedTime(elapsedTime: Long) {
+		dataStore.updateData { proto ->
+			proto.toBuilder()
+				.setElapsedTime(elapsedTime)
 				.build()
 		}
 	}

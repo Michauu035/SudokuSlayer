@@ -41,7 +41,6 @@ fun SudokuCell(
 	val highlightedNumberColor = MaterialTheme.colorScheme.surfaceColorAtElevation(80.dp)
 	val highlightedRowColumnColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
 
-	val isZero = cellData.number == 0
 	val bgColor = when {
 		isSelected -> selectedBgColor
 		isRowColumnHighlighted -> highlightedRowColumnColor

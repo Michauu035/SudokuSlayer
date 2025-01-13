@@ -82,6 +82,14 @@ class SudokuGameViewModel(
 					)
 				}
 			} ?: throw Exception("Proto Sudoku not found!")
+
+			dataStoreRepository.difficultyProto.firstOrNull()?.let { difficulty ->
+				_uiState.update {
+					it.copy(
+						difficulty = difficulty
+					)
+				}
+			} ?: throw Exception("Proto Difficulty not found!")
 			_isLoading.value = false
 		}
 	}

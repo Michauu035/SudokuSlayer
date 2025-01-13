@@ -2,13 +2,15 @@ package com.example.sudokuslayer.presentation.screen.game.model
 
 import com.example.sudoku.model.SudokuCellData
 import com.example.sudoku.model.SudokuGrid
+import com.example.sudokuslayer.presentation.screen.sudokucreator.SudokuDifficulty
 
 data class SudokuGameUiState(
 	val sudoku: SudokuGrid = SudokuGrid(),
 	val selectedCell: Pair<Int, Int>? = null,
 	val gameState: GameState = GameState.PLAYING,
 	val inputMode: InputMode = InputMode.NUMBER,
-	val cellsToRemove: Int = 20 // Temporarly for testing purposes
+	val elapsedTime: Long = 0L,
+	val difficulty: SudokuDifficulty = SudokuDifficulty.EASY
 )
 
 data class SudokuMove(

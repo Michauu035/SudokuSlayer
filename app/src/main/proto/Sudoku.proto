@@ -19,4 +19,14 @@ message SudokuCell {
 message SudokuGrid {
   int64 seed = 1;
   repeated SudokuCell data = 2;
+  int64 elapsedTime = 3;
+  Difficulty difficulty = 4;
+
+  enum Difficulty {
+    DIFFICULTY_UNSPECIFIED = 0;
+    DIFFICULTY_EASY = 1;
+    DIFFICULTY_MEDIUM = 2;
+    DIFFICULTY_HARD = 3;
+    DIFFICULTY_EXPERT = 4;
+  }
 }

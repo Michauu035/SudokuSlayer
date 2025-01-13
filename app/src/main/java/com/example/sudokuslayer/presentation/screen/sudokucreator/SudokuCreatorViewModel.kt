@@ -3,9 +3,9 @@ package com.example.sudokuslayer.presentation.screen.sudokucreator
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
-import com.example.sudoku.model.SudokuGrid
 import com.example.sudoku.generator.ClassicSudokuGenerator
+import com.example.sudoku.model.SudokuGrid
+import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +21,9 @@ data class SudokuCreatorUiState(
 	val difficulty: SudokuDifficulty = SudokuDifficulty.EASY,
 	val screenState: ScreenState = ScreenState.INITIAL,
 	val sudoku: SudokuGrid? = null,
-	val hasSavedData: Boolean = false
+	val elapsedTime: Long? = null,
+	val hasSavedData: Boolean = false,
+	val savedDifficulty: SudokuDifficulty? = null,
 )
 
 enum class ScreenState {
@@ -41,7 +43,6 @@ enum class SudokuDifficulty {
 	}
 
 	fun increase(): SudokuDifficulty {
-
 		return entries.toTypedArray().getOrElse(ordinal + 1) { this }
 	}
 }
@@ -56,11 +57,17 @@ class SudokuCreatorViewModel(
 		viewModelScope.launch {
 			dataStoreRepository.sudokuGridProto.firstOrNull()?.let { sudoku ->
 				val hasData = sudoku.getArray().isNotEmpty()
-				_uiState.update {
-					it.copy(hasSavedData = hasData)
-				}
+				_uiState.update { it.copy(hasSavedData = hasData) }
 			} ?: _uiState.update {
 				it.copy(hasSavedData = false)
+			}
+
+			dataStoreRepository.difficultyProto.firstOrNull()?.let { difficulty ->
+				_uiState.update { it.copy(savedDifficulty = difficulty) }
+			}
+
+			dataStoreRepository.elapsedTimeProto.firstOrNull()?.let { elapsedTime ->
+				_uiState.update { it.copy(elapsedTime = elapsedTime) }
 			}
 		}
 	}
@@ -103,15 +110,16 @@ class SudokuCreatorViewModel(
 			}
 
 			val sudoku = generator.createSudoku(cellsToRemove)
-
 			_uiState.update {
 				it.copy(
-					screenState = ScreenState.DONE,
-					sudoku = sudoku
+					sudoku = sudoku,
+					screenState = ScreenState.DONE
 				)
 			}
 
 			dataStoreRepository.updateData(_uiState.value.sudoku!!)
+			dataStoreRepository.updateDifficulty(_uiState.value.difficulty)
+			dataStoreRepository.updateElapsedTime(0L)
 		}
 	}
 
