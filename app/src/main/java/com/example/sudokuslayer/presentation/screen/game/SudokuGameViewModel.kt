@@ -93,12 +93,14 @@ class SudokuGameViewModel(
 			lastSelected?.let {
 				updatedSudoku.removeAttribute(it.first, it.second, CellAttributes.SELECTED)
 				if (updatedSudoku[row, col].number != 0)
-					updatedSudoku.clearHighlightedCells()
+					updatedSudoku.clearNumberHighlight()
+				updatedSudoku.clearRowColumnHighlight()
 			}
 
 			updatedSudoku.addAttribute(row, col, CellAttributes.SELECTED)
 			val currentlySelected = updatedSudoku[row, col]
 			updatedSudoku.highlightMatchingCells(currentlySelected.number)
+			updatedSudoku.highlightRowAndColumn(currentlySelected.row, currentlySelected.col)
 
 			_uiState.update {
 				it.copy(
@@ -220,7 +222,7 @@ class SudokuGameViewModel(
 			sudoku.clearCornerNotes(row, col)
 		} else {
 			sudoku[row, col] = if (sudoku[row, col].number == number) 0 else number
-			sudoku.clearHighlightedCells()
+			sudoku.clearNumberHighlight()
 			sudoku.highlightMatchingCells(number)
 		}
 	}

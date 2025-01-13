@@ -32,17 +32,27 @@ fun SudokuCell(
 	cellData: SudokuCellData,
 	onClick: () -> Unit,
 	isGenerated: Boolean = false,
-	isHighlighted: Boolean = false,
-	selected: Boolean = false,
+	isNumberHighlighted: Boolean = false,
+	isRowColumnHighlighted: Boolean = false,
+	isSelected: Boolean = false,
 ) {
-	val bgColor =
-		if (selected) MaterialTheme.colorScheme.surfaceContainerHighest else MaterialTheme.colorScheme.surfaceContainerLow
-	val weight = if (isGenerated) FontWeight.Bold else FontWeight.Normal
+	val baseBgColor = MaterialTheme.colorScheme.surfaceContainerLow
+	val selectedBgColor = MaterialTheme.colorScheme.surfaceContainerHighest
+	val highlightedNumberColor = MaterialTheme.colorScheme.surfaceColorAtElevation(80.dp)
+	val highlightedRowColumnColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
+
+	val isZero = cellData.number == 0
+	val bgColor = when {
+		isSelected -> selectedBgColor
+		isRowColumnHighlighted -> highlightedRowColumnColor
+		else -> baseBgColor
+	}
+
+	val fontWeight = if (isGenerated) FontWeight.Bold else FontWeight.Normal
 	val textColor =
 		if (isGenerated) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.tertiary
-	val highlightedColor = MaterialTheme.colorScheme.surfaceColorAtElevation(10.dp)
 
-	val ishHighlightApplicable = isHighlighted && !selected && cellData.number != 0
+	val isNumberHighlightApplicable = isNumberHighlighted && !isSelected && cellData.number != 0
 
 	Box(
 		modifier = Modifier
@@ -57,8 +67,8 @@ fun SudokuCell(
 	) {
 		Surface(
 			modifier = Modifier.padding(2.dp),
-			color = if (ishHighlightApplicable) highlightedColor else bgColor,
-			shape = if (ishHighlightApplicable) CircleShape else RoundedCornerShape(0.1.dp)
+			color = if (isNumberHighlightApplicable) highlightedNumberColor else bgColor,
+			shape = if (isNumberHighlightApplicable) CircleShape else RoundedCornerShape(0.1.dp)
 		) {
 			if (cellData.number != 0) {
 				Text(
@@ -68,7 +78,7 @@ fun SudokuCell(
 						.wrapContentHeight(align = Alignment.CenterVertically),
 					style = MaterialTheme.typography.bodyLarge,
 					textAlign = TextAlign.Center,
-					fontWeight = weight,
+					fontWeight = fontWeight,
 					color = textColor
 				)
 			} else {
@@ -86,7 +96,7 @@ fun SudokuCell(
 							fontSize = 10.sp,
 							lineHeight = 10.sp,
 							textAlign = TextAlign.Center,
-							fontWeight = weight,
+							fontWeight = fontWeight,
 							color = textColor
 						)
 					}

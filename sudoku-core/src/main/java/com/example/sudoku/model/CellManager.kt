@@ -26,62 +26,80 @@ class CellManager(
 	}
 
 	fun resetGame() {
-		for (cell in data.filter { !it.attributes.contains(CellAttributes.GENERATED) }) {
-			updateCell(cell.row, cell.col) {
-				it.copy(
-					number = 0,
-					cornerNotes = emptySet()
-				)
-			}
-		}
+		updateFilteredCells(
+			filterCondition = { !it.attributes.contains(CellAttributes.GENERATED) },
+			updater = { it.copy(number = 0, cornerNotes = emptySet()) }
+		)
 	}
 
 	fun clearNotes() {
-		for (cell in data.filter { !it.attributes.contains(CellAttributes.GENERATED) }) {
-			updateCell(cell.row, cell.col) {
-				it.copy(
-					cornerNotes = emptySet()
-				)
-			}
-		}
+		updateFilteredCells(
+			filterCondition = {!it.attributes.contains(CellAttributes.GENERATED)},
+			updater = { it.copy(cornerNotes = emptySet()) }
+		)
 	}
 
 	fun lockGeneratedCells() {
-		for (cell in data.filter { it.number != 0 }) {
-			updateCell(cell.row, cell.col) {
+		updateFilteredCells(
+			filterCondition = { it.number != 0 },
+			updater = {
 				it.copy(
 					attributes = it.attributes + CellAttributes.GENERATED
 				)
 			}
-		}
+		)
 	}
 
 	fun highlightMatchingCells(number: Int) {
 		if (number == 0)
 			return
-		for (cell in data.filter { it.number == number  }) {
-			updateCell(cell.row, cell.col) { cell.copy(attributes = cell.attributes + CellAttributes.HIGHLIGHTED) }
-		}
+		updateFilteredCells(
+			filterCondition = { it.number == number  },
+			updater = { it.copy(attributes = it.attributes + CellAttributes.NUMBER_MATCH_HIGHLIGHTED) }
+		)
 	}
 
-	fun clearHighlightedCells() {
-		for (cell in data.filter { it.attributes.contains(CellAttributes.HIGHLIGHTED)}) {
-			updateCell(cell.row, cell.col) { cell.copy(attributes = cell.attributes - CellAttributes.HIGHLIGHTED) }
-		}
+	fun highlightRowAndColumn(row: Int, col: Int){
+		updateFilteredCells(
+			filterCondition = { ( it.row == row || it.col == col ) && !it.attributes.contains(CellAttributes.SELECTED) },
+			updater = { it.copy(attributes = it.attributes + CellAttributes.ROW_COLUMN_HIGHLIGHTED) }
+		)
+	}
+
+	fun clearNumberHighlight() {
+		updateFilteredCells(
+			filterCondition =  { it.attributes.contains(CellAttributes.NUMBER_MATCH_HIGHLIGHTED)},
+			updater = { it.copy(attributes = it.attributes - CellAttributes.NUMBER_MATCH_HIGHLIGHTED)}
+		)
+	}
+
+	fun clearRowColumnHighlight() {
+		updateFilteredCells(
+			filterCondition =  { it.attributes.contains(CellAttributes.ROW_COLUMN_HIGHLIGHTED)},
+			updater = { it.copy(attributes = it.attributes - CellAttributes.ROW_COLUMN_HIGHLIGHTED)}
+		)
 	}
 
 	fun fillNotes() {
-		for (cell in data.filter { !it.attributes.contains(CellAttributes.GENERATED) }) {
-			val possibleNumbers = (1..9).filter { ClassicSudokuSolver.isValidMove(SudokuGrid.fromCellData(data), cell.row, cell.col, it) }.toSet()
-			updateCell(cell.row, cell.col) {
-				it.copy(
-					cornerNotes = possibleNumbers
-				)
+		updateFilteredCells(
+			filterCondition =  { !it.attributes.contains(CellAttributes.GENERATED) },
+			updater = { cell ->
+				val possibleNumbers = (1..9).filter { ClassicSudokuSolver.isValidMove(SudokuGrid.fromCellData(data), cell.row, cell.col, it) }.toSet()
+				cell.copy(cornerNotes = possibleNumbers)
 			}
-		}
+		)
 	}
 	private fun updateCell(row: Int, col: Int, updater: (SudokuCellData) -> SudokuCellData) {
 		val index = row * 9 + col
 		data[index] = updater(data[index])
+	}
+
+	private fun updateFilteredCells(
+		filterCondition: (SudokuCellData) -> Boolean,
+		updater: (SudokuCellData) -> SudokuCellData
+	) {
+		for (cell in data.filter(filterCondition)) {
+			updateCell(cell.row, cell.col, updater)
+		}
 	}
 }

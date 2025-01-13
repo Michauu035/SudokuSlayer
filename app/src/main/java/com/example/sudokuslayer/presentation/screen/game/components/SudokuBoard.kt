@@ -65,8 +65,9 @@ fun SudokuBoard(
 					cellData = cell,
 					onClick = { onCellClick(cell.row, cell.col) },
 					isGenerated = cell.attributes.contains(CellAttributes.GENERATED),
-					isHighlighted = cell.attributes.contains(CellAttributes.HIGHLIGHTED),
-					selected = cell.attributes.contains(CellAttributes.SELECTED)
+					isNumberHighlighted = cell.attributes.contains(CellAttributes.NUMBER_MATCH_HIGHLIGHTED),
+					isRowColumnHighlighted = cell.attributes.contains(CellAttributes.ROW_COLUMN_HIGHLIGHTED),
+					isSelected = cell.attributes.contains(CellAttributes.SELECTED)
 				)
 			}
 		}

@@ -125,8 +125,17 @@ class SudokuGrid(
 		cellManager.highlightMatchingCells(number)
 	}
 
-	fun clearHighlightedCells() {
-		cellManager.clearHighlightedCells()
+	fun highlightRowAndColumn(row: Int, col: Int) {
+		requireValidIndex(row, col)
+		cellManager.highlightRowAndColumn(row, col)
+	}
+
+	fun clearNumberHighlight() {
+		cellManager.clearNumberHighlight()
+	}
+
+	fun clearRowColumnHighlight() {
+		cellManager.clearRowColumnHighlight()
 	}
 
 	fun lockGeneratedCells() = cellManager.lockGeneratedCells()
