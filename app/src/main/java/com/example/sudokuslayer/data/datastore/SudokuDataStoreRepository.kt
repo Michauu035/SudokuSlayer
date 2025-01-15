@@ -9,7 +9,7 @@ import com.example.sudokuslayer.presentation.screen.sudokucreator.SudokuDifficul
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import sudoku.SudokuCell.Attributes
+import sudoku.SudokuCell.Attributes.*
 import sudoku.SudokuCell as SudokuCellProto
 import sudoku.SudokuGrid as SudokuGridProto
 
@@ -53,11 +53,14 @@ class SudokuDataStoreRepository(
 			col = protoCell.col,
 			number = protoCell.number,
 			cornerNotes = protoCell.cornerNotesList.toMutableSet(),
-			attributes = if (protoCell.attribute.number == 1) {
-				mutableSetOf(CellAttributes.GENERATED)
-			} else {
-				mutableSetOf()
-			}
+			attributes = protoCell.attributesList.map { attr ->
+				when (attr) {
+					ATTRIBUTES_GENERATED -> CellAttributes.GENERATED
+					ATTRIBUTES_HINT_REVEALED -> CellAttributes.HINT_REVEALED
+					ATTRIBUTES_BREAKING_RULE -> CellAttributes.RULE_BREAKING
+					else -> CellAttributes.UNSPECIFIED
+				}
+			}.toSet()
 		)
 	}
 
@@ -67,8 +70,15 @@ class SudokuDataStoreRepository(
 			.setCol(domainCell.col)
 			.setNumber(domainCell.number)
 			.addAllCornerNotes(domainCell.cornerNotes)
-			.setAttribute(
-				Attributes.forNumber( if (domainCell.attributes.contains(CellAttributes.GENERATED)) 1 else 0)
+			.addAllAttributes(
+				domainCell.attributes.map { attr ->
+					when (attr) {
+						CellAttributes.GENERATED -> ATTRIBUTES_GENERATED
+						CellAttributes.HINT_REVEALED -> ATTRIBUTES_HINT_REVEALED
+						CellAttributes.RULE_BREAKING -> ATTRIBUTES_BREAKING_RULE
+						else -> ATTRIBUTES_UNSPECIFIED
+					}
+				}
 			)
 			.build()
 	}
@@ -96,8 +106,16 @@ class SudokuDataStoreRepository(
 						.setNumber(newCellData.number)
 						.clearCornerNotes()
 						.addAllCornerNotes(newCellData.cornerNotes)
-						.setAttribute(
-							Attributes.forNumber( if (newCellData.attributes.contains(CellAttributes.GENERATED)) 1 else 0)
+						.clearAttributes()
+						.addAllAttributes(
+							newCellData.attributes.map { attr ->
+								when (attr) {
+									CellAttributes.GENERATED -> ATTRIBUTES_GENERATED
+									CellAttributes.HINT_REVEALED -> ATTRIBUTES_HINT_REVEALED
+									CellAttributes.RULE_BREAKING -> ATTRIBUTES_BREAKING_RULE
+									else -> ATTRIBUTES_UNSPECIFIED
+								}
+							}
 						)
 						.build()
 				} else {

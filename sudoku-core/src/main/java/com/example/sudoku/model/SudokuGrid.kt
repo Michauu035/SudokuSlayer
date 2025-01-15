@@ -93,6 +93,9 @@ class SudokuGrid(
 		}
 
 		fun fromCellData(cells: Array<SudokuCellData>): SudokuGrid = SudokuGrid(cells.clone())
+
+		fun fromStringArray(gridData: Array<String>): SudokuGrid =
+			fromIntArray(gridData.map { row -> row.map { it.toString().toInt() }.toIntArray() }.toTypedArray())
 	}
 
 	// Delegating Cell Manager functionality

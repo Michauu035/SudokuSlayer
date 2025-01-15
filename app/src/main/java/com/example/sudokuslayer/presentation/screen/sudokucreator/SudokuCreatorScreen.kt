@@ -37,8 +37,6 @@ import com.example.sudokuslayer.data.datastore.sudokuGridDataStore
 import com.example.sudokuslayer.presentation.navigation.Destination
 import com.example.sudokuslayer.presentation.screen.sudokucreator.SudokuCreatorViewModel.Event
 import com.example.sudokuslayer.presentation.screen.sudokucreator.components.HorizontalSelect
-import java.text.DateFormat
-import java.text.DateFormat.getTimeInstance
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +48,6 @@ fun SudokuCreatorScreen(
 		SudokuDataStoreRepository(context.sudokuGridDataStore))),
 ) {
 	val uiState = viewModel.uiState.collectAsState().value
-	val timeFormat = getTimeInstance(DateFormat.LONG)
 
 	Scaffold(
 		modifier = Modifier.fillMaxSize(),
