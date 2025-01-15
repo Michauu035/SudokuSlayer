@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,11 +34,13 @@ fun SudokuCell(
 	isNumberHighlighted: Boolean = false,
 	isRowColumnHighlighted: Boolean = false,
 	isSelected: Boolean = false,
+	isBreakingRules: Boolean = false,
 ) {
 	val baseBgColor = MaterialTheme.colorScheme.surfaceContainerLow
 	val selectedBgColor = MaterialTheme.colorScheme.surfaceContainerHighest
 	val highlightedNumberColor = MaterialTheme.colorScheme.surfaceColorAtElevation(80.dp)
 	val highlightedRowColumnColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
+	val ruleBreakingColor = MaterialTheme.colorScheme.errorContainer
 
 	val bgColor = when {
 		isSelected -> selectedBgColor
@@ -47,11 +48,21 @@ fun SudokuCell(
 		else -> baseBgColor
 	}
 
+
 	val fontWeight = if (isGenerated) FontWeight.Bold else FontWeight.Normal
 	val textColor =
-		if (isGenerated) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.tertiary
+		when {
+			isBreakingRules -> MaterialTheme.colorScheme.onErrorContainer
+			isGenerated -> MaterialTheme.colorScheme.onSurfaceVariant
+			else -> MaterialTheme.colorScheme.tertiary
+		}
 
 	val isNumberHighlightApplicable = isNumberHighlighted && !isSelected && cellData.number != 0
+	val circleColor = when {
+		isBreakingRules -> ruleBreakingColor
+		isNumberHighlightApplicable -> highlightedNumberColor
+		else -> bgColor
+	}
 
 	Box(
 		modifier = Modifier
@@ -66,8 +77,8 @@ fun SudokuCell(
 	) {
 		Surface(
 			modifier = Modifier.padding(2.dp),
-			color = if (isNumberHighlightApplicable) highlightedNumberColor else bgColor,
-			shape = if (isNumberHighlightApplicable) CircleShape else RoundedCornerShape(0.1.dp)
+			color = circleColor,
+			shape = CircleShape
 		) {
 			if (cellData.number != 0) {
 				Text(

@@ -146,6 +146,10 @@ class SudokuGrid(
 
 	fun clearNotes() = cellManager.clearNotes()
 
+	fun markRuleBreakingCells() = cellManager.markRuleBreakingCells()
+
+	fun clearRuleBreakingCells() = cellManager.clearRuleBreakingCells()
+
 	// Utility functions
 	private fun getIndex(row: Int, col: Int): Int = row * 9 + col
 

@@ -67,7 +67,8 @@ fun SudokuBoard(
 					isGenerated = cell.attributes.contains(CellAttributes.GENERATED),
 					isNumberHighlighted = cell.attributes.contains(CellAttributes.NUMBER_MATCH_HIGHLIGHTED),
 					isRowColumnHighlighted = cell.attributes.contains(CellAttributes.ROW_COLUMN_HIGHLIGHTED),
-					isSelected = cell.attributes.contains(CellAttributes.SELECTED)
+					isSelected = cell.attributes.contains(CellAttributes.SELECTED),
+					isBreakingRules = cell.attributes.contains(CellAttributes.RULE_BREAKING),
 				)
 			}
 		}

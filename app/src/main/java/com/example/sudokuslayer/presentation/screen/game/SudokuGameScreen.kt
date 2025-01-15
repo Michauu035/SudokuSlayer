@@ -84,6 +84,7 @@ fun SudokuGameScreen(
 		isVisible = resetDialogVisible,
 		onConfirmClick = {
 			viewModel.onEvent(Event.ResetGame)
+			timerViewModel.resetTimer()
 			resetDialogVisible = false
 		},
 		onDismissClick = { resetDialogVisible = false },
@@ -115,32 +116,33 @@ fun SudokuGameScreen(
 			)
 		}
 	) { innerPadding ->
-		Column(
-			modifier = Modifier.fillMaxSize().padding(innerPadding),
-			horizontalAlignment = Alignment.CenterHorizontally
-		) {
-			SudokuBoard(
-				sudoku = sudoku,
-				onCellClick = { row, col -> viewModel.onEvent(Event.SelectCell(row, col)) },
-			)
-			KeyPad(
-				onNumberClick = { viewModel.onEvent(Event.InputNumber(it)) },
-				onClearClick = { viewModel.onEvent(Event.ClearCell) },
-				onUndoClick = { viewModel.onEvent(Event.Undo) },
-				onRedoClick = { viewModel.onEvent(Event.Redo) },
-				onNumberSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.NUMBER)) },
-				onNoteSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.NOTE)) },
-				onColorSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.COLOR)) },
-				onHintClick = { hintsDialogState.visible = true },
-				onShowMistakesClick = { viewModel.onEvent(Event.ShowMistakes) },
-				onResetClick = { resetDialogVisible = true },
-				inputMode = uiState.inputMode
-			)
-			if (loading.value) {
-				CircularProgressIndicator()
+		if (loading.value) {
+			CircularProgressIndicator()
+		} else {
+			Column(
+				modifier = Modifier.fillMaxSize().padding(innerPadding),
+				horizontalAlignment = Alignment.CenterHorizontally
+			) {
+				SudokuBoard(
+					sudoku = sudoku,
+					onCellClick = { row, col -> viewModel.onEvent(Event.SelectCell(row, col)) },
+				)
+				KeyPad(
+					onNumberClick = { viewModel.onEvent(Event.InputNumber(it)) },
+					onClearClick = { viewModel.onEvent(Event.ClearCell) },
+					onUndoClick = { viewModel.onEvent(Event.Undo) },
+					onRedoClick = { viewModel.onEvent(Event.Redo) },
+					onNumberSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.NUMBER)) },
+					onNoteSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.NOTE)) },
+					onColorSwitchClick = { viewModel.onEvent(Event.SwitchInputMode(InputMode.COLOR)) },
+					onHintClick = { hintsDialogState.visible = true },
+					onShowMistakesClick = { viewModel.onEvent(Event.ShowMistakes) },
+					onResetClick = { resetDialogVisible = true },
+					inputMode = uiState.inputMode
+				)
+
 			}
 		}
-
 	}
 }
 

@@ -125,7 +125,10 @@ class SudokuGameViewModel(
 			val updatedSudoku = currentState.sudoku.clone()
 			val selectedCell: Pair<Int, Int> = currentState.selectedCell ?: return@launch
 
-			if (updatedSudoku[selectedCell.first, selectedCell.second].attributes.contains(CellAttributes.GENERATED)) return@launch
+			if (updatedSudoku[selectedCell.first, selectedCell.second].attributes.contains(
+					CellAttributes.GENERATED
+				)
+			) return@launch
 			val backupCell = updatedSudoku[selectedCell.first, selectedCell.second]
 
 			when (currentState.inputMode) {
@@ -133,7 +136,7 @@ class SudokuGameViewModel(
 
 				InputMode.NOTE -> handleNoteInput(number, updatedSudoku, selectedCell)
 
-				InputMode.COLOR -> { }
+				InputMode.COLOR -> {}
 			}
 
 			saveMoveAndUpdateState(backupCell, updatedSudoku)
@@ -149,7 +152,8 @@ class SudokuGameViewModel(
 					sudoku = updatedSudoku
 				)
 			}
-
+			lastMoves.clear()
+			futureMoves.clear()
 			dataStoreRepository.updateData(updatedSudoku)
 		}
 	}
@@ -205,9 +209,11 @@ class SudokuGameViewModel(
 			val (previousCellData, newCellData) = moveStack.removeLast()
 			val updatedSudoku = _uiState.value.sudoku.clone()
 
-			Log.d("", "move: ${previousCellData.number}")
 			updatedSudoku.replaceCell(previousCellData.row, previousCellData.col, previousCellData)
 			targetStack.add(SudokuMove(newCellData, previousCellData))
+
+			updatedSudoku.clearRuleBreakingCells()
+			updatedSudoku.markRuleBreakingCells()
 
 			_uiState.update { it.copy(sudoku = updatedSudoku) }
 
@@ -232,6 +238,9 @@ class SudokuGameViewModel(
 			sudoku[row, col] = if (sudoku[row, col].number == number) 0 else number
 			sudoku.clearNumberHighlight()
 			sudoku.highlightMatchingCells(number)
+			sudoku.clearRuleBreakingCells()
+			sudoku.markRuleBreakingCells()
+
 		}
 	}
 
@@ -247,7 +256,10 @@ class SudokuGameViewModel(
 		}
 	}
 
-	private fun saveMoveAndUpdateState(previousCellData: SudokuCellData, updatedSudoku: SudokuGrid) {
+	private fun saveMoveAndUpdateState(
+		previousCellData: SudokuCellData,
+		updatedSudoku: SudokuGrid
+	) {
 		val (row, col) = previousCellData
 		lastMoves.add(
 			SudokuMove(

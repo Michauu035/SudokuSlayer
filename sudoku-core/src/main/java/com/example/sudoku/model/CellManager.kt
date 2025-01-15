@@ -28,7 +28,11 @@ class CellManager(
 	fun resetGame() {
 		updateFilteredCells(
 			filterCondition = { !it.attributes.contains(CellAttributes.GENERATED) },
-			updater = { it.copy(number = 0, cornerNotes = emptySet()) }
+			updater = { it.copy(number = 0, cornerNotes = emptySet(), attributes = emptySet()) }
+		)
+		updateFilteredCells(
+			filterCondition = { it.attributes.contains(CellAttributes.GENERATED) },
+			updater = { it.copy(attributes = setOf(CellAttributes.GENERATED)) }
 		)
 	}
 
@@ -89,6 +93,44 @@ class CellManager(
 			}
 		)
 	}
+
+	fun markRuleBreakingCells() {
+		for (row in 0..8) {
+			val rowData = data.filter { it.row == row && it.number != 0}
+			rowData.groupingBy { it.number }.eachCount().filter { it.value > 1 }.forEach { (number, _) ->
+				updateFilteredCells(
+					filterCondition = { it.row == row && it.number == number },
+					updater = { it.copy(attributes = it.attributes + CellAttributes.RULE_BREAKING) }
+				)
+			}
+		}
+		for (col in 0..8) {
+			val colData = data.filter { it.col == col && it.number != 0}
+			colData.groupingBy { it.number }.eachCount().filter { it.value > 1 }.forEach { (number, _) ->
+				updateFilteredCells(
+					filterCondition = { it.col == col && it.number == number },
+					updater = { it.copy(attributes = it.attributes + CellAttributes.RULE_BREAKING) }
+				)
+			}
+		}
+		for (subgrid in 0..8) {
+			val subgridData = data.filter { it.number != 0 && ((it.row / 3) * 3 + it.col / 3) == subgrid}
+			subgridData.groupingBy { it.number }.eachCount().filter { it.value > 1 }.forEach { (number, _) ->
+				updateFilteredCells(
+					filterCondition = {((it.row / 3) * 3 + it.col / 3) == subgrid && it.number == number },
+					updater = { it.copy(attributes = it.attributes + CellAttributes.RULE_BREAKING) }
+				)
+			}
+		}
+	}
+
+	fun clearRuleBreakingCells() {
+		updateFilteredCells(
+			filterCondition = { it.attributes.contains(CellAttributes.RULE_BREAKING) },
+			updater = { it.copy(attributes = it.attributes - CellAttributes.RULE_BREAKING) }
+		)
+	}
+
 	private fun updateCell(row: Int, col: Int, updater: (SudokuCellData) -> SudokuCellData) {
 		val index = row * 9 + col
 		data[index] = updater(data[index])

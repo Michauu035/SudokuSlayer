@@ -31,18 +31,31 @@ class TimerViewModel(
 		}
 	}
 
+	fun pauseTimer() {
+		isRunning = false
+	}
+
+	fun resetTimer() {
+		_elapsedTime.value = 0
+		saveElapsedTime()
+	}
+
 	fun loadSavedTime() {
 		viewModelScope.launch {
 			_elapsedTime.value = dataStoreRepository.elapsedTimeProto.firstOrNull() ?: 0
 		}
 	}
 
-	override fun onPause(owner: LifecycleOwner) {
-		super.onPause(owner)
-		isRunning = false
+	fun saveElapsedTime() {
 		viewModelScope.launch(Dispatchers.IO) {
 			dataStoreRepository.updateElapsedTime(_elapsedTime.value)
 		}
+	}
+
+	override fun onPause(owner: LifecycleOwner) {
+		super.onPause(owner)
+		pauseTimer()
+		saveElapsedTime()
 	}
 
 	override fun onResume(owner: LifecycleOwner) {
