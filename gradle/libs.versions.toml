@@ -15,6 +15,7 @@ protobuf = "0.9.4"
 protobufKotlinLite = "4.29.1"
 composeUnstyled = "1.20.0"
 jetbrainsKotlinJvm = "2.1.0"
+catppuccinPalette = "0.1.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,6 +37,8 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 androidx-datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore"}
 protobuf-kotlin-lite = { group = "com.google.protobuf", name = "protobuf-kotlin-lite", version.ref = "protobufKotlinLite" }
 compose-unstyled = { group = "com.composables", name = "core", version.ref = "composeUnstyled"}
+catppuccin-palette = { group = "com.github.ShiftHackZ.Catppuccin-Android-Library", name = "palette", version.ref = "catppuccinPalette"}
+catppuccin-compose = { group = "com.github.ShiftHackZ.Catppuccin-Android-Library", name = "compose", version.ref = "catppuccinPalette"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

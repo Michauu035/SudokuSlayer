@@ -2,10 +2,8 @@ package com.example.sudokuslayer
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,15 +33,11 @@ fun App() {
 			navController = navController,
 			scope = scope
 		) {
-			Scaffold(
-				modifier = Modifier.fillMaxSize(),
-			) { innerPadding ->
-				Column(modifier = Modifier.padding()) {
-					SudokuNavHost(
-						navController = navController,
-						openDrawer = { scope.launch { drawerState.open() } }
-					)
-				}
+			Column(modifier = Modifier.fillMaxSize()) {
+				SudokuNavHost(
+					navController = navController,
+					openDrawer = { scope.launch { drawerState.open() } }
+				)
 			}
 		}
 	}

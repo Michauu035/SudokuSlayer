@@ -2,7 +2,9 @@ package com.example.sudokuslayer.presentation.navigation.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -18,17 +20,23 @@ fun MyNavigationDrawerItem(isSelected: Boolean, destination: Destination, onClic
 			DestinationIcon(destination.icon)
 		},
 		label = {
-			Text(destination.routeName)
+			Text(
+				text = destination.routeName,
+				color = if (isSelected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+			)
 		},
 		selected = isSelected,
 		onClick = onClick,
-		modifier = Modifier.padding(8.dp)
+		modifier = Modifier.padding(8.dp),
+		colors = NavigationDrawerItemDefaults.colors(
+			selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+		)
 	)
 }
 
 @Composable
 fun DestinationIcon(icon: DestinationIcon) {
-	when(icon){
+	when (icon) {
 		is DestinationIcon.ResourceIcon -> Icon(painterResource(icon.resourceId), "")
 		is DestinationIcon.VectorIcon -> Icon(icon.imageVector, "")
 	}

@@ -24,8 +24,8 @@ fun KeyPadItem(
 	text: String,
 	onClick: () -> Unit,
 	icon: (@Composable () -> Unit)? = null,
-	bgColor: Color = MaterialTheme.colorScheme.primary,
-	textColor: Color = MaterialTheme.colorScheme.onPrimary,
+	bgColor: Color = MaterialTheme.colorScheme.primaryContainer,
+	textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
 ) {
 	Box(
 		modifier = Modifier

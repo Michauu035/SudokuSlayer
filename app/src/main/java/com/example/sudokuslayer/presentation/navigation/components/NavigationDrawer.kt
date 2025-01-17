@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
@@ -34,8 +35,14 @@ fun NavigationDrawer(
 	ModalNavigationDrawer(
 		drawerState = drawerState,
 		drawerContent = {
-			ModalDrawerSheet {
-				Text("Sudoku Slayer", modifier = Modifier.padding(16.dp))
+			ModalDrawerSheet(
+				drawerContainerColor = MaterialTheme.colorScheme.surfaceVariant
+			) {
+				Text(
+					text = "Sudoku Slayer",
+					modifier = Modifier.padding(16.dp),
+					color = MaterialTheme.colorScheme.onSurfaceVariant
+				)
 				HorizontalDivider()
 				destinations.forEach { destination ->
 					MyNavigationDrawerItem(
@@ -49,7 +56,6 @@ fun NavigationDrawer(
 						}
 					)
 				}
-				HorizontalDivider()
 			}
 		}
 	) {

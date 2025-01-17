@@ -7,4 +7,3 @@ plugins {
     alias(libs.plugins.protobuf) apply false
 	alias(libs.plugins.jetbrains.kotlin.jvm) apply false
 }
-

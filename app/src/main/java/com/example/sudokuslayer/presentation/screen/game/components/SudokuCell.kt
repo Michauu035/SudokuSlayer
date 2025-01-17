@@ -15,16 +15,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sudoku.model.SudokuCellData
+import com.example.sudokuslayer.presentation.ui.theme.extendedColorScheme
 
 @Composable
 fun SudokuCell(
@@ -35,38 +37,53 @@ fun SudokuCell(
 	isRowColumnHighlighted: Boolean = false,
 	isSelected: Boolean = false,
 	isBreakingRules: Boolean = false,
+	isHintFocus: Boolean = false,
+	isHintRevealed: Boolean = false
 ) {
-	val baseBgColor = MaterialTheme.colorScheme.surfaceContainerLow
-	val selectedBgColor = MaterialTheme.colorScheme.surfaceContainerHighest
-	val highlightedNumberColor = MaterialTheme.colorScheme.surfaceColorAtElevation(80.dp)
-	val highlightedRowColumnColor = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp)
-	val ruleBreakingColor = MaterialTheme.colorScheme.errorContainer
+	val isCornerCell =
+		(cellData.row == 0 && (cellData.col == 0 || cellData.col == 8)) || (cellData.row == 8 && (cellData.col == 0 || cellData.col == 8))
+
+	val baseBgColor = MaterialTheme.colorScheme.background
+	val selectedBgColor = MaterialTheme.colorScheme.surfaceTint
+	val highlightedRowColumnColor = MaterialTheme.colorScheme.surface
+	val ruleBreakingColor = MaterialTheme.colorScheme.error
+	val hintFocusColor = MaterialTheme.extendedColorScheme.peach.colorContainer
 
 	val bgColor = when {
+		isHintRevealed -> hintFocusColor
 		isSelected -> selectedBgColor
 		isRowColumnHighlighted -> highlightedRowColumnColor
 		else -> baseBgColor
 	}
 
-
 	val fontWeight = if (isGenerated) FontWeight.Bold else FontWeight.Normal
-	val textColor =
-		when {
-			isBreakingRules -> MaterialTheme.colorScheme.onErrorContainer
-			isGenerated -> MaterialTheme.colorScheme.onSurfaceVariant
-			else -> MaterialTheme.colorScheme.tertiary
-		}
 
-	val isNumberHighlightApplicable = isNumberHighlighted && !isSelected && cellData.number != 0
+	val isNumberHighlightApplicable = when {
+		cellData.number == 0 -> false
+		isBreakingRules -> true
+		isSelected -> false
+		isNumberHighlighted -> true
+		else -> false
+	}
+
 	val circleColor = when {
 		isBreakingRules -> ruleBreakingColor
-		isNumberHighlightApplicable -> highlightedNumberColor
+		isHintRevealed -> MaterialTheme.extendedColorScheme.peach.colorContainer
+		isNumberHighlightApplicable -> MaterialTheme.colorScheme.tertiaryContainer
 		else -> bgColor
 	}
 
+	val textColor = when {
+		isHintRevealed -> MaterialTheme.extendedColorScheme.peach.onColorContainer
+		isBreakingRules -> MaterialTheme.colorScheme.onError
+		isNumberHighlightApplicable -> MaterialTheme.colorScheme.onTertiaryContainer
+		isGenerated -> MaterialTheme.colorScheme.onSurface
+		else -> MaterialTheme.colorScheme.secondary
+	}
+
+	val boxModifier = Modifier.background(bgColor)
 	Box(
-		modifier = Modifier
-			.background(bgColor)
+		modifier = boxModifier
 			.padding(1.dp)
 			.aspectRatio(1f)
 			.clickable(
@@ -75,10 +92,13 @@ fun SudokuCell(
 		contentAlignment = Alignment.Center
 
 	) {
-		Surface(
-			modifier = Modifier.padding(2.dp),
-			color = circleColor,
-			shape = CircleShape
+		HighlightableSurface(
+			bgColor = circleColor,
+			isHighlighted = isNumberHighlightApplicable,
+			shadowElevation = 0.dp,
+			modifier = Modifier
+				.fillMaxSize()
+				.padding(2.dp)
 		) {
 			if (cellData.number != 0) {
 				Text(
@@ -114,6 +134,28 @@ fun SudokuCell(
 			}
 
 		}
+	}
+}
+
+@Composable
+fun HighlightableSurface(
+	bgColor: Color,
+	shadowElevation: Dp = 15.dp,
+	isHighlighted: Boolean,
+	modifier: Modifier = Modifier,
+	content: @Composable () -> Unit
+) {
+	if (isHighlighted) {
+		Surface(
+			color = bgColor,
+			shape = CircleShape,
+			shadowElevation = shadowElevation,
+			modifier = modifier,
+		) {
+			content()
+		}
+	} else {
+		content()
 	}
 }
 

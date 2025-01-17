@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -22,9 +23,9 @@ fun VerticalActionPadRight(
 	inputMode: InputMode
 ) {
 	val bgColor = MaterialTheme.colorScheme.surfaceContainer
-	val iconColor = MaterialTheme.colorScheme.onSurface
-	val selectedBgColor = MaterialTheme.colorScheme.tertiaryContainer
-	val selectedIconColor = MaterialTheme.colorScheme.onTertiaryContainer
+	val iconColor = MaterialTheme.colorScheme.contentColorFor(bgColor)
+	val selectedBgColor = MaterialTheme.colorScheme.secondaryContainer
+	val selectedIconColor = MaterialTheme.colorScheme.contentColorFor(selectedBgColor)
 
 	Column(modifier = Modifier.padding(8.dp)) {
 		KeyPadItem(
@@ -32,11 +33,11 @@ fun VerticalActionPadRight(
 			icon = {
 				Icon(
 					painter = painterResource(R.drawable.tag),
-					contentDescription = "Switch to number pad"
+					contentDescription = "Switch to number pad",
+					tint = if (inputMode == InputMode.NUMBER) selectedIconColor else iconColor,
 				)
 			},
 			bgColor = if (inputMode == InputMode.NUMBER) selectedBgColor else bgColor,
-			textColor = if (inputMode == InputMode.NUMBER) selectedIconColor else iconColor,
 			onClick = onNumberSwitchClick
 		)
 		Spacer(modifier = Modifier.height(8.dp))
@@ -45,11 +46,11 @@ fun VerticalActionPadRight(
 			icon = {
 				Icon(
 					painter = painterResource(R.drawable.stylus_note),
-					contentDescription = "Switch to note pad"
+					contentDescription = "Switch to note pad",
+					tint = if (inputMode == InputMode.NOTE) selectedIconColor else iconColor,
 				)
 			},
 			bgColor = if (inputMode == InputMode.NOTE) selectedBgColor else bgColor,
-			textColor = if (inputMode == InputMode.NOTE) selectedIconColor else iconColor,
 			onClick = onNoteSwitchClick
 		)
 		Spacer(modifier = Modifier.height(8.dp))
@@ -58,11 +59,11 @@ fun VerticalActionPadRight(
 			icon = {
 				Icon(
 					painter = painterResource(R.drawable.palette),
-					contentDescription = "Switch to color pad"
+					contentDescription = "Switch to color pad",
+					tint = if (inputMode == InputMode.COLOR) selectedIconColor else iconColor
 				)
 			},
 			bgColor = if (inputMode == InputMode.COLOR) selectedBgColor else bgColor,
-			textColor = if (inputMode == InputMode.COLOR) selectedIconColor else iconColor,
 			onClick = onColorSwitchClick
 		)
 	}

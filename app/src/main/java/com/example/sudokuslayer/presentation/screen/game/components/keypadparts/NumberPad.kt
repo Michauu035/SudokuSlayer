@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.sudokuslayer.presentation.screen.game.model.InputMode
+import com.example.sudokuslayer.presentation.ui.theme.extendedColorScheme
 
 @Composable
 fun NumberPad(
@@ -27,9 +28,15 @@ fun NumberPad(
 	)
 
 	val keyColor = when(inputMode) {
-		InputMode.NUMBER -> MaterialTheme.colorScheme.primary
-		InputMode.NOTE -> MaterialTheme.colorScheme.tertiary
-		InputMode.COLOR -> MaterialTheme.colorScheme.secondary
+		InputMode.NUMBER -> MaterialTheme.extendedColorScheme.lavender.colorContainer
+		InputMode.NOTE -> MaterialTheme.extendedColorScheme.pink.colorContainer
+		InputMode.COLOR -> MaterialTheme.extendedColorScheme.rosewater.colorContainer
+	}
+
+	val textColor = when(inputMode) {
+		InputMode.NUMBER -> MaterialTheme.extendedColorScheme.lavender.onColorContainer
+		InputMode.NOTE -> MaterialTheme.extendedColorScheme.pink.onColorContainer
+		InputMode.COLOR -> MaterialTheme.extendedColorScheme.rosewater.onColorContainer
 	}
 
 	Column(
@@ -44,7 +51,8 @@ fun NumberPad(
 					KeyPadItem(
 						text = number.toString(),
 						onClick = { onButtonClick(number) },
-						bgColor = keyColor
+						bgColor = keyColor,
+						textColor = textColor
 					)
 					Spacer(modifier = Modifier.width(8.dp))
 				}

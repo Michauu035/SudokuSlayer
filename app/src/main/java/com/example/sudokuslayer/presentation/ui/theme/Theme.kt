@@ -1,17 +1,29 @@
 package com.example.sudokuslayer.presentation.ui.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import com.shifthackz.catppuccin.compose.CatppuccinMaterial
+import com.shifthackz.catppuccin.compose.CatppuccinTheme
 
+
+@Immutable
+data class ExtendedColorScheme(
+    val peach: ColorFamily,
+    val rosewater: ColorFamily,
+    val maroon: ColorFamily,
+    val pink: ColorFamily,
+    val teal: ColorFamily,
+    val lavender: ColorFamily,
+    val yellow: ColorFamily,
+)
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -241,6 +253,276 @@ private val highContrastDarkColorScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
 )
 
+val extendedLight = ExtendedColorScheme(
+    peach = ColorFamily(
+        peachLight,
+        onPeachLight,
+        peachContainerLight,
+        onPeachContainerLight,
+    ),
+    rosewater = ColorFamily(
+        rosewaterLight,
+        onRosewaterLight,
+        rosewaterContainerLight,
+        onRosewaterContainerLight,
+    ),
+    maroon = ColorFamily(
+        maroonLight,
+        onMaroonLight,
+        maroonContainerLight,
+        onMaroonContainerLight,
+    ),
+    pink = ColorFamily(
+        pinkLight,
+        onPinkLight,
+        pinkContainerLight,
+        onPinkContainerLight,
+    ),
+    teal = ColorFamily(
+        tealLight,
+        onTealLight,
+        tealContainerLight,
+        onTealContainerLight,
+    ),
+    lavender = ColorFamily(
+        lavenderLight,
+        onLavenderLight,
+        lavenderContainerLight,
+        onLavenderContainerLight,
+    ),
+    yellow = ColorFamily(
+        yellowLight,
+        onYellowLight,
+        yellowContainerLight,
+        onYellowContainerLight,
+    ),
+)
+
+val extendedDark = ExtendedColorScheme(
+    peach = ColorFamily(
+        peachDark,
+        onPeachDark,
+        peachContainerDark,
+        onPeachContainerDark,
+    ),
+    rosewater = ColorFamily(
+        rosewaterDark,
+        onRosewaterDark,
+        rosewaterContainerDark,
+        onRosewaterContainerDark,
+    ),
+    maroon = ColorFamily(
+        maroonDark,
+        onMaroonDark,
+        maroonContainerDark,
+        onMaroonContainerDark,
+    ),
+    pink = ColorFamily(
+        pinkDark,
+        onPinkDark,
+        pinkContainerDark,
+        onPinkContainerDark,
+    ),
+    teal = ColorFamily(
+        tealDark,
+        onTealDark,
+        tealContainerDark,
+        onTealContainerDark,
+    ),
+    lavender = ColorFamily(
+        lavenderDark,
+        onLavenderDark,
+        lavenderContainerDark,
+        onLavenderContainerDark,
+    ),
+    yellow = ColorFamily(
+        yellowDark,
+        onYellowDark,
+        yellowContainerDark,
+        onYellowContainerDark,
+    ),
+)
+
+val extendedLightMediumContrast = ExtendedColorScheme(
+    peach = ColorFamily(
+        peachLightMediumContrast,
+        onPeachLightMediumContrast,
+        peachContainerLightMediumContrast,
+        onPeachContainerLightMediumContrast,
+    ),
+    rosewater = ColorFamily(
+        rosewaterLightMediumContrast,
+        onRosewaterLightMediumContrast,
+        rosewaterContainerLightMediumContrast,
+        onRosewaterContainerLightMediumContrast,
+    ),
+    maroon = ColorFamily(
+        maroonLightMediumContrast,
+        onMaroonLightMediumContrast,
+        maroonContainerLightMediumContrast,
+        onMaroonContainerLightMediumContrast,
+    ),
+    pink = ColorFamily(
+        pinkLightMediumContrast,
+        onPinkLightMediumContrast,
+        pinkContainerLightMediumContrast,
+        onPinkContainerLightMediumContrast,
+    ),
+    teal = ColorFamily(
+        tealLightMediumContrast,
+        onTealLightMediumContrast,
+        tealContainerLightMediumContrast,
+        onTealContainerLightMediumContrast,
+    ),
+    lavender = ColorFamily(
+        lavenderLightMediumContrast,
+        onLavenderLightMediumContrast,
+        lavenderContainerLightMediumContrast,
+        onLavenderContainerLightMediumContrast,
+    ),
+    yellow = ColorFamily(
+        yellowLightMediumContrast,
+        onYellowLightMediumContrast,
+        yellowContainerLightMediumContrast,
+        onYellowContainerLightMediumContrast,
+    ),
+)
+
+val extendedLightHighContrast = ExtendedColorScheme(
+    peach = ColorFamily(
+        peachLightHighContrast,
+        onPeachLightHighContrast,
+        peachContainerLightHighContrast,
+        onPeachContainerLightHighContrast,
+    ),
+    rosewater = ColorFamily(
+        rosewaterLightHighContrast,
+        onRosewaterLightHighContrast,
+        rosewaterContainerLightHighContrast,
+        onRosewaterContainerLightHighContrast,
+    ),
+    maroon = ColorFamily(
+        maroonLightHighContrast,
+        onMaroonLightHighContrast,
+        maroonContainerLightHighContrast,
+        onMaroonContainerLightHighContrast,
+    ),
+    pink = ColorFamily(
+        pinkLightHighContrast,
+        onPinkLightHighContrast,
+        pinkContainerLightHighContrast,
+        onPinkContainerLightHighContrast,
+    ),
+    teal = ColorFamily(
+        tealLightHighContrast,
+        onTealLightHighContrast,
+        tealContainerLightHighContrast,
+        onTealContainerLightHighContrast,
+    ),
+    lavender = ColorFamily(
+        lavenderLightHighContrast,
+        onLavenderLightHighContrast,
+        lavenderContainerLightHighContrast,
+        onLavenderContainerLightHighContrast,
+    ),
+    yellow = ColorFamily(
+        yellowLightHighContrast,
+        onYellowLightHighContrast,
+        yellowContainerLightHighContrast,
+        onYellowContainerLightHighContrast,
+    ),
+)
+
+val extendedDarkMediumContrast = ExtendedColorScheme(
+    peach = ColorFamily(
+        peachDarkMediumContrast,
+        onPeachDarkMediumContrast,
+        peachContainerDarkMediumContrast,
+        onPeachContainerDarkMediumContrast,
+    ),
+    rosewater = ColorFamily(
+        rosewaterDarkMediumContrast,
+        onRosewaterDarkMediumContrast,
+        rosewaterContainerDarkMediumContrast,
+        onRosewaterContainerDarkMediumContrast,
+    ),
+    maroon = ColorFamily(
+        maroonDarkMediumContrast,
+        onMaroonDarkMediumContrast,
+        maroonContainerDarkMediumContrast,
+        onMaroonContainerDarkMediumContrast,
+    ),
+    pink = ColorFamily(
+        pinkDarkMediumContrast,
+        onPinkDarkMediumContrast,
+        pinkContainerDarkMediumContrast,
+        onPinkContainerDarkMediumContrast,
+    ),
+    teal = ColorFamily(
+        tealDarkMediumContrast,
+        onTealDarkMediumContrast,
+        tealContainerDarkMediumContrast,
+        onTealContainerDarkMediumContrast,
+    ),
+    lavender = ColorFamily(
+        lavenderDarkMediumContrast,
+        onLavenderDarkMediumContrast,
+        lavenderContainerDarkMediumContrast,
+        onLavenderContainerDarkMediumContrast,
+    ),
+    yellow = ColorFamily(
+        yellowDarkMediumContrast,
+        onYellowDarkMediumContrast,
+        yellowContainerDarkMediumContrast,
+        onYellowContainerDarkMediumContrast,
+    ),
+)
+
+val extendedDarkHighContrast = ExtendedColorScheme(
+    peach = ColorFamily(
+        peachDarkHighContrast,
+        onPeachDarkHighContrast,
+        peachContainerDarkHighContrast,
+        onPeachContainerDarkHighContrast,
+    ),
+    rosewater = ColorFamily(
+        rosewaterDarkHighContrast,
+        onRosewaterDarkHighContrast,
+        rosewaterContainerDarkHighContrast,
+        onRosewaterContainerDarkHighContrast,
+    ),
+    maroon = ColorFamily(
+        maroonDarkHighContrast,
+        onMaroonDarkHighContrast,
+        maroonContainerDarkHighContrast,
+        onMaroonContainerDarkHighContrast,
+    ),
+    pink = ColorFamily(
+        pinkDarkHighContrast,
+        onPinkDarkHighContrast,
+        pinkContainerDarkHighContrast,
+        onPinkContainerDarkHighContrast,
+    ),
+    teal = ColorFamily(
+        tealDarkHighContrast,
+        onTealDarkHighContrast,
+        tealContainerDarkHighContrast,
+        onTealContainerDarkHighContrast,
+    ),
+    lavender = ColorFamily(
+        lavenderDarkHighContrast,
+        onLavenderDarkHighContrast,
+        lavenderContainerDarkHighContrast,
+        onLavenderContainerDarkHighContrast,
+    ),
+    yellow = ColorFamily(
+        yellowDarkHighContrast,
+        onYellowDarkHighContrast,
+        yellowContainerDarkHighContrast,
+        onYellowContainerDarkHighContrast,
+    ),
+)
+
 @Immutable
 data class ColorFamily(
     val color: Color,
@@ -253,26 +535,35 @@ val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
 
+private val LocalExtendedColorScheme = staticCompositionLocalOf<ExtendedColorScheme> {
+    extendedLight
+}
+
+
+val MaterialTheme.extendedColorScheme: ExtendedColorScheme
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalExtendedColorScheme.current
+
+
 @Composable
 fun SudokuSlayerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable() () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> darkScheme
-        else -> lightScheme
+    val extendedColorScheme = when {
+        darkTheme -> extendedDark
+        else -> extendedLight
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        content = content
-    )
+    CompositionLocalProvider(LocalExtendedColorScheme provides extendedColorScheme) {
+        CatppuccinTheme.DarkLightPalette(
+			darkTheme = darkTheme,
+			darkPalette = CatppuccinMaterial.Mocha(),
+			lightPalette = CatppuccinMaterial.Latte(),
+		) {
+            content()
+        }
+
+    }
 }

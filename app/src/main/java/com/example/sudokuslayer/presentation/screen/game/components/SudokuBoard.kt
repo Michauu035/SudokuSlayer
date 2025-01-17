@@ -23,8 +23,8 @@ fun SudokuBoard(
 	onCellClick: (Int, Int) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val cellBorderColor = MaterialTheme.colorScheme.outline
-	val subgridBorderColor = MaterialTheme.colorScheme.primary
+	val cellBorderColor = MaterialTheme.colorScheme.outlineVariant
+	val subgridBorderColor = MaterialTheme.colorScheme.outline
 
 	LazyVerticalGrid(
 		columns = GridCells.Fixed(9),
@@ -54,7 +54,7 @@ fun SudokuBoard(
 
 			.border(
 				width = 1.dp,
-				color = MaterialTheme.colorScheme.outline,
+				color = MaterialTheme.colorScheme.outlineVariant,
 				shape = RoundedCornerShape(8.dp)
 			)
 
@@ -69,6 +69,8 @@ fun SudokuBoard(
 					isRowColumnHighlighted = cell.attributes.contains(CellAttributes.ROW_COLUMN_HIGHLIGHTED),
 					isSelected = cell.attributes.contains(CellAttributes.SELECTED),
 					isBreakingRules = cell.attributes.contains(CellAttributes.RULE_BREAKING),
+					isHintFocus = cell.attributes.contains(CellAttributes.HINT_FOCUS),
+					isHintRevealed = cell.attributes.contains(CellAttributes.HINT_REVEALED)
 				)
 			}
 		}
