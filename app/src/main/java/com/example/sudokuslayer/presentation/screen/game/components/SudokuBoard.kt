@@ -1,7 +1,6 @@
 package com.example.sudokuslayer.presentation.screen.game.components
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -60,19 +59,19 @@ fun SudokuBoard(
 
 	) {
 		items(sudoku.getArray()) { cell ->
-			Box {
-				SudokuCell(
-					cellData = cell,
-					onClick = { onCellClick(cell.row, cell.col) },
-					isGenerated = cell.attributes.contains(CellAttributes.GENERATED),
-					isNumberHighlighted = cell.attributes.contains(CellAttributes.NUMBER_MATCH_HIGHLIGHTED),
-					isRowColumnHighlighted = cell.attributes.contains(CellAttributes.ROW_COLUMN_HIGHLIGHTED),
-					isSelected = cell.attributes.contains(CellAttributes.SELECTED),
-					isBreakingRules = cell.attributes.contains(CellAttributes.RULE_BREAKING),
-					isHintFocus = cell.attributes.contains(CellAttributes.HINT_FOCUS),
-					isHintRevealed = cell.attributes.contains(CellAttributes.HINT_REVEALED)
-				)
-			}
+
+			SudokuCell(
+				cellData = cell,
+				onClick = { onCellClick(cell.row, cell.col) },
+				isGenerated = cell.attributes.contains(CellAttributes.GENERATED),
+				isNumberHighlighted = cell.attributes.contains(CellAttributes.NUMBER_MATCH_HIGHLIGHTED),
+				isRowColumnHighlighted = cell.attributes.contains(CellAttributes.ROW_COLUMN_HIGHLIGHTED),
+				isSelected = cell.attributes.contains(CellAttributes.SELECTED),
+				isBreakingRules = cell.attributes.contains(CellAttributes.RULE_BREAKING),
+				isHintFocus = cell.attributes.contains(CellAttributes.HINT_FOCUS),
+				isHintRevealed = cell.attributes.contains(CellAttributes.HINT_REVEALED)
+			)
+
 		}
 	}
 }

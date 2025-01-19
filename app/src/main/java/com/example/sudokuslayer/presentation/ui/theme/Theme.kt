@@ -12,6 +12,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import com.shifthackz.catppuccin.compose.CatppuccinMaterial
 import com.shifthackz.catppuccin.compose.CatppuccinTheme
+import com.shifthackz.catppuccin.palette.Catppuccin
+import com.shifthackz.catppuccin.palette.CatppuccinPalette
 
 
 @Immutable
@@ -539,12 +541,19 @@ private val LocalExtendedColorScheme = staticCompositionLocalOf<ExtendedColorSch
     extendedLight
 }
 
+val LocalCatppuccinPalette = staticCompositionLocalOf<CatppuccinPalette> { Catppuccin.Latte }
+
+
 
 val MaterialTheme.extendedColorScheme: ExtendedColorScheme
     @Composable
     @ReadOnlyComposable
     get() = LocalExtendedColorScheme.current
 
+val MaterialTheme.catppuccinPalette: CatppuccinPalette
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalCatppuccinPalette.current
 
 @Composable
 fun SudokuSlayerTheme(
@@ -556,14 +565,20 @@ fun SudokuSlayerTheme(
         else -> extendedLight
     }
 
-    CompositionLocalProvider(LocalExtendedColorScheme provides extendedColorScheme) {
-        CatppuccinTheme.DarkLightPalette(
-			darkTheme = darkTheme,
-			darkPalette = CatppuccinMaterial.Mocha(),
-			lightPalette = CatppuccinMaterial.Latte(),
-		) {
-            content()
-        }
+    val catppuccinPalette = when {
+        darkTheme -> Catppuccin.Mocha
+        else -> Catppuccin.Latte
+    }
 
+    CompositionLocalProvider(LocalExtendedColorScheme provides extendedColorScheme) {
+        CompositionLocalProvider(LocalCatppuccinPalette provides catppuccinPalette) {
+            CatppuccinTheme.DarkLightPalette(
+                darkTheme = darkTheme,
+                darkPalette = CatppuccinMaterial.Mocha(),
+                lightPalette = CatppuccinMaterial.Latte(),
+            ) {
+                content()
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.example.sudokuslayer.presentation.screen.game.model
 
 import com.example.sudoku.model.SudokuCellData
 import com.example.sudoku.model.SudokuGrid
+import com.example.sudoku.solver.Hint
 import com.example.sudokuslayer.presentation.screen.sudokucreator.SudokuDifficulty
 
 data class SudokuGameUiState(
@@ -9,8 +10,9 @@ data class SudokuGameUiState(
 	val selectedCell: Pair<Int, Int>? = null,
 	val gameState: GameState = GameState.PLAYING,
 	val inputMode: InputMode = InputMode.NUMBER,
-	val elapsedTime: Long = 0L,
-	val difficulty: SudokuDifficulty = SudokuDifficulty.EASY
+	val difficulty: SudokuDifficulty = SudokuDifficulty.EASY,
+	val hint: Hint? = null,
+	val hintLogs: List<String> = emptyList()
 )
 
 data class SudokuMove(
