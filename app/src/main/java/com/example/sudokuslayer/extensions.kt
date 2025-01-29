@@ -42,7 +42,7 @@ fun createAnnotatedString(
 ): AnnotatedString {
     val singleQuotePattern = "'(.*?)'".toRegex() // 'column 4'
     val asteriskPattern = "\\*(.*?)\\*".toRegex() // *HintType*
-    val angleBracketPattern = "<(.*?)>".toRegex() // number <4> in cell [2, 1]
+	val angleBracketPattern = "<(.*?)>".toRegex() // number <4> in cell [2, 1]
 	val squareBracketPattern = "\\[(.*?)]".toRegex() // [row, col] - [3, 4]
 	val curlyBracketPattern = "\\{(.*?)\\}".toRegex() // columns {1, 2, 3}
 

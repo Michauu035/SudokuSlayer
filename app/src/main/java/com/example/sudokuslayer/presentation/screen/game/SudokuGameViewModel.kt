@@ -9,7 +9,6 @@ import com.example.sudoku.model.SudokuGrid
 import com.example.sudoku.solver.ClassicSudokuSolver
 import com.example.sudoku.solver.Hint
 import com.example.sudoku.solver.HintProvider
-import com.example.sudoku.solver.HintType
 import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
 import com.example.sudokuslayer.presentation.screen.game.model.InputMode
@@ -363,52 +362,21 @@ class SudokuGameViewModel(
 			inputNumber(hint.value, hint.row to hint.col, InputMode.NUMBER, true)
 
 			val updatedSudoku = _uiState.value.sudoku.clone()
-			val logs = mutableListOf<String>()
-
-			val (row, column, value) = hint
-
-			when (hint.type) {
-				HintType.NAKED_SINGLE -> {
-					logs.add("The cell at [${row + 1}, ${column + 1}] has only one possible candidate remaining after considering the numbers already present in its row, column, and block.")
-					logs.add("Since the only possible candidate for the cell is <$value>, this cell must contain <$value>. \n*Naked Single*")
-				}
-
-				HintType.HIDDEN_SINGLE -> {
-					when (hint.additionalInfo) {
-						"row" -> {
-							val columns =
-								updatedSudoku.getRow(row).withIndex().filter { it.value == 0 }
-									.map { it.index + 1 }.joinToString()
-							logs.add("In 'row ${row + 1}', <$value> cannot be placed in columns {$columns} because they are blocked by <$value> in the same column or block.")
-						}
-
-						"col" -> {
-							val rows =
-								updatedSudoku.getCol(column).withIndex().filter { it.value == 0 }
-									.map { it.index + 1 }.joinToString()
-							logs.add("In 'column ${column + 1}', <$value> cannot be placed in rows {$rows} because they are blocked by <$value> in the same row or block.")
-						}
-
-						"block" -> {
-							logs.add("In the block containing the cell, <$value> cannot be placed in other cells because those cells are blocked by numbers in the same row or column.")
-						}
-					}
-					logs.add("Therefore, the cell at [${row + 1}, ${column + 1}] must contain <$value>. \n*Hidden Single*")
-				}
-			}
-
-
+			val explanationSteps = hint.explanationStrategy.generateHintExplanationSteps(
+				updatedSudoku,
+				hint
+			)
 
 			updatedSudoku.removeAttribute(hint.row, hint.col, CellAttributes.HINT_FOCUS)
 			updatedSudoku.addAttribute(hint.row, hint.col, CellAttributes.HINT_REVEALED)
+
 			_uiState.update {
 				it.copy(
 					sudoku = updatedSudoku,
-					hintLogs = it.hintLogs + logs,
+					hintLogs = it.hintLogs + explanationSteps,
 					hint = null
 				)
 			}
-
 		}
 	}
 }

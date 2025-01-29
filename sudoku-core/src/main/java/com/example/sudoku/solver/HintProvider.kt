@@ -12,6 +12,7 @@ data class Hint(
 	val col: Int,
 	val value: Int,
 	val type: HintType,
+	val explanationStrategy: HintExplanationStrategy,
 	val additionalInfo: String = ""
 )
 
@@ -38,7 +39,8 @@ class HintProvider(
 					row = cell.row,
 					col = cell.col,
 					value = possibleValues.first(),
-					type = HintType.NAKED_SINGLE
+					type = HintType.NAKED_SINGLE,
+					explanationStrategy = NakedSingleExplanation()
 				)
 			}
 		}
@@ -62,7 +64,8 @@ class HintProvider(
 					col = hintCell.col,
 					value = hintValue,
 					type = HintType.HIDDEN_SINGLE,
-					additionalInfo = "row"
+					additionalInfo = "row",
+					explanationStrategy = HiddenSingleExplanation()
 				)
 			}
 		}
@@ -82,7 +85,8 @@ class HintProvider(
 					col = hintCell.col,
 					value = hintValue,
 					type = HintType.HIDDEN_SINGLE,
-					additionalInfo = "col"
+					additionalInfo = "col",
+					explanationStrategy = HiddenSingleExplanation()
 				)
 			}
 		}
@@ -104,7 +108,8 @@ class HintProvider(
 					col = hintCell.col,
 					value = hintValue,
 					type = HintType.HIDDEN_SINGLE,
-					additionalInfo = "block"
+					additionalInfo = "block",
+					explanationStrategy = HiddenSingleExplanation()
 				)
 			}
 		}
