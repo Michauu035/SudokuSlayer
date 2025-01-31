@@ -1,5 +1,6 @@
 package com.example.sudokuslayer.presentation.screen.game
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import com.example.sudoku.solver.Hint
 import com.example.sudoku.solver.HintProvider
 import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
+import com.example.sudokuslayer.presentation.screen.game.model.HintLog
 import com.example.sudokuslayer.presentation.screen.game.model.InputMode
 import com.example.sudokuslayer.presentation.screen.game.model.SudokuGameUiState
 import com.example.sudokuslayer.presentation.screen.game.model.SudokuMove
@@ -163,6 +165,7 @@ class SudokuGameViewModel(
 			}
 
 			if (isHint) {
+				updatedSudoku.removeAttribute(row, col, CellAttributes.HINT_FOCUS)
 				updatedSudoku.addAttribute(row, col, CellAttributes.HINT_REVEALED)
 			}
 
@@ -178,7 +181,7 @@ class SudokuGameViewModel(
 				it.copy(
 					sudoku = updatedSudoku,
 					hintLogs = emptyList(),
-					hint = null,
+					lastHint = null,
 					selectedCell = null,
 				)
 			}
@@ -266,14 +269,18 @@ class SudokuGameViewModel(
 			sudoku.clearCornerNotes(row, col)
 		} else {
 			sudoku[row, col] = if (sudoku[row, col].number == number) 0 else number
-			if (_uiState.value.hint?.row == row &&
-				_uiState.value.hint?.col == col &&
-				number == _uiState.value.hint?.value
+			if (_uiState.value.lastHint?.row == row &&
+				_uiState.value.lastHint?.col == col &&
+				number == _uiState.value.lastHint?.value
 			) {
+				val updatedLogs = _uiState.value.hintLogs.toMutableList()
+				val lastHintId = updatedLogs.indexOfLast { it.hint == _uiState.value.lastHint }
+				val log = updatedLogs[lastHintId]
+				updatedLogs[lastHintId] = log.copy(isUserGuessed = true, explanation = log.explanation + "~You guessed correctly!~")
 				_uiState.update {
 					it.copy(
-						hint = null,
-						hintLogs = it.hintLogs + "Great job! You placed the correct number in cell [3, 5]."
+						lastHint = null,
+						hintLogs = updatedLogs
 					)
 				}
 			}
@@ -339,14 +346,28 @@ class SudokuGameViewModel(
 			if (_uiState.value.gameState == GameState.VICTORY) return@launch
 			val updatedSudoku = _uiState.value.sudoku.clone()
 			val hint = HintProvider(updatedSudoku.getArray()).provideHint()
+
+			Log.d("Hint", hint.toString())
+
 			if (hint != null) {
 				updatedSudoku.addAttribute(hint.row, hint.col, CellAttributes.HINT_FOCUS)
 				selectCell(hint.row, hint.col)
+
+				val explanationSteps = listOf("Focus at cell [${hint.row + 1}, ${hint.col + 1}]!") + hint.explanationStrategy.generateHintExplanationSteps(
+					updatedSudoku,
+					hint
+				)
+				val hintLog = HintLog(
+					hint = hint,
+					isUserGuessed = false,
+					isRevealed = false,
+					explanation = explanationSteps
+				)
 				_uiState.update {
 					it.copy(
 						sudoku = updatedSudoku,
-						hint = hint,
-						hintLogs = it.hintLogs + "Focus on cell [${hint.row + 1}, ${hint.col + 1}]"
+						lastHint = hint,
+						hintLogs = it.hintLogs + hintLog
 					)
 				}
 			}
@@ -355,26 +376,22 @@ class SudokuGameViewModel(
 
 	private fun explainHint() {
 		viewModelScope.launch {
-			val hint: Hint = _uiState.value.hint ?: return@launch
+			val hint: Hint = _uiState.value.lastHint ?: return@launch
 			if (_uiState.value.sudoku[hint.row, hint.col].number != 0) return@launch
 
 			selectCell(hint.row, hint.col)
 			inputNumber(hint.value, hint.row to hint.col, InputMode.NUMBER, true)
 
 			val updatedSudoku = _uiState.value.sudoku.clone()
-			val explanationSteps = hint.explanationStrategy.generateHintExplanationSteps(
-				updatedSudoku,
-				hint
-			)
-
-			updatedSudoku.removeAttribute(hint.row, hint.col, CellAttributes.HINT_FOCUS)
-			updatedSudoku.addAttribute(hint.row, hint.col, CellAttributes.HINT_REVEALED)
+			val updatedLogs = _uiState.value.hintLogs.toMutableList()
+			val lastHintId = updatedLogs.indexOfLast { it.hint == _uiState.value.lastHint }
+			updatedLogs[lastHintId] = updatedLogs[lastHintId].copy(isRevealed = true)
 
 			_uiState.update {
 				it.copy(
 					sudoku = updatedSudoku,
-					hintLogs = it.hintLogs + explanationSteps,
-					hint = null
+					hintLogs = updatedLogs,
+					lastHint = null
 				)
 			}
 		}

@@ -11,8 +11,8 @@ data class SudokuGameUiState(
 	val gameState: GameState = GameState.PLAYING,
 	val inputMode: InputMode = InputMode.NUMBER,
 	val difficulty: SudokuDifficulty = SudokuDifficulty.EASY,
-	val hint: Hint? = null,
-	val hintLogs: List<String> = emptyList()
+	val lastHint: Hint? = null,
+	val hintLogs: List<HintLog> = emptyList()
 )
 
 data class SudokuMove(
@@ -30,3 +30,10 @@ enum class InputMode {
 	NOTE,
 	COLOR
 }
+
+data class HintLog(
+	val hint: Hint,
+	val isUserGuessed: Boolean,
+	val isRevealed: Boolean,
+	val explanation: List<String>
+)

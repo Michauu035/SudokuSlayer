@@ -81,7 +81,7 @@ fun SudokuGameScreen(
 
 	val scaffoldState = rememberBottomSheetScaffoldState(
 		bottomSheetState = rememberStandardBottomSheetState(
-			initialValue = SheetValue.Hidden,
+			initialValue = SheetValue.Expanded,
 			skipHiddenState = false
 		)
 	)
@@ -131,7 +131,7 @@ fun SudokuGameScreen(
 	HintBottomSheetScaffold(
 		sheetScaffoldState = scaffoldState,
 		hintLogs = uiState.hintLogs,
-		showNextHint = uiState.hint == null,
+		showNextHint = uiState.lastHint == null,
 		explainHintClick = { viewModel.onEvent(Event.ExplainHint) },
 		nextHintClick = { viewModel.onEvent(Event.ProvideHint) },
 		topBar = {

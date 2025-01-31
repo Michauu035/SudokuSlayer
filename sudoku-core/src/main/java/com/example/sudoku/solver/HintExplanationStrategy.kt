@@ -40,22 +40,22 @@ class HiddenSingleExplanation : HintExplanationStrategy {
 		}
 
 		val blockedCells = when (hint.additionalInfo) {
-			"row" -> "columns" + grid.getRow(hint.row).withIndex().filter { it.value == 0 }
-				.map { it.index + 1 }.joinToString()
-			"col" -> "rows" + grid.getCol(hint.col).withIndex().filter { it.value == 0 }
-				.map { it.index + 1 }.joinToString()
+			"row" -> "columns { " + grid.getRow(hint.row).withIndex().filter { it.value == 0 }
+				.map { it.index + 1 }.joinToString() + " }"
+			"col" -> "rows { " + grid.getCol(hint.col).withIndex().filter { it.value == 0 }
+				.map { it.index + 1 }.joinToString() + " }"
 			else -> "other cells"
 		}
 
 		val blockedReason = when (hint.additionalInfo) {
-			"row" -> "they are blocked by ${ hint.value } in the same column or block"
+			"row" -> "they are blocked by ${hint.value} in the same column or block"
 			"col" -> "they are blocked by ${hint.value} in the same row or block"
 			else -> "those cells are blocked by numbers in the same row or column"
 		}
 
 		return listOf(
-			"In '$scope', <$hint.value> cannot be placed in {$blockedCells} because $blockedReason.",
-			"Therefore, the cell at [${hint.row + 1}, ${hint.col + 1}] must contain <$hint.value>. \n*Hidden Single*"
+			"In '$scope', <${hint.value}> cannot be placed in $blockedCells because $blockedReason.",
+			"Therefore, the cell at [${hint.row + 1}, ${hint.col + 1}] must contain <${hint.value}>. \n*Hidden Single*"
 		)
 	}
 }

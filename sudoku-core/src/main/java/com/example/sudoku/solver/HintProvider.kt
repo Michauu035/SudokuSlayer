@@ -1,6 +1,7 @@
 package com.example.sudoku.solver
 
 import com.example.sudoku.model.SudokuCellData
+import com.example.sudoku.symmetricDifference
 
 enum class HintType {
 	NAKED_SINGLE,
@@ -55,9 +56,10 @@ class HintProvider(
 
 			emptyCells = emptyCells.map { it.copy(cornerNotes = getPossibleValues(it.row, it.col)) }
 
-			val setSubstract = emptyCells.map { it.cornerNotes }.reduce { acc, set -> acc - set }
-			if (setSubstract.size == 1) {
-				val hintValue = setSubstract.first()
+			val symmetricDifference = symmetricDifference(emptyCells.map { it.cornerNotes }.toList())
+			if (symmetricDifference.size == 1) {
+				val hintValue = symmetricDifference.first()
+
 				val hintCell = emptyCells.find { it.cornerNotes.contains(hintValue) }!!
 				return Hint(
 					row = hintCell.row,
@@ -76,9 +78,9 @@ class HintProvider(
 
 			emptyCells = emptyCells.map { it.copy(cornerNotes = getPossibleValues(it.row, it.col)) }
 
-			val setSubstract = emptyCells.map { it.cornerNotes }.reduce { acc, set -> acc - set }
-			if (setSubstract.size == 1) {
-				val hintValue = setSubstract.first()
+			val symmetricDifference = symmetricDifference(emptyCells.map { it.cornerNotes }.toList())
+			if (symmetricDifference.size == 1) {
+				val hintValue = symmetricDifference.first()
 				val hintCell = emptyCells.find { it.cornerNotes.contains(hintValue) }!!
 				return Hint(
 					row = hintCell.row,
@@ -99,9 +101,9 @@ class HintProvider(
 
 			emptyCells = emptyCells.map { it.copy(cornerNotes = getPossibleValues(it.row, it.col)) }
 
-			val setSubstract = emptyCells.map { it.cornerNotes }.reduce { acc, set -> acc - set }
-			if (setSubstract.size == 1) {
-				val hintValue = setSubstract.first()
+			val symmetricDifference = symmetricDifference(emptyCells.map { it.cornerNotes }.toList())
+			if (symmetricDifference.size == 1) {
+				val hintValue = symmetricDifference.first()
 				val hintCell = emptyCells.find { it.cornerNotes.contains(hintValue) }!!
 				return Hint(
 					row = hintCell.row,
