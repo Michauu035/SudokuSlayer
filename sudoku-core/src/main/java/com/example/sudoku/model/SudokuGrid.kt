@@ -34,7 +34,7 @@ class SudokuGrid(
 		data[index] = data[index].copy(
 			number = cellData.number,
 			cornerNotes = cellData.cornerNotes,
-			centerNotes = cellData.centerNotes,
+			candidates = cellData.candidates,
 		)
 	}
 

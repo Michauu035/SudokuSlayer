@@ -226,7 +226,7 @@ private fun HintBottomSheetScaffoldPreview() {
 						row = 1,
 						col = 1,
 						value = 4,
-						type = HintType.NAKED_SINGLE,
+						type = HintType.NakedSingle,
 						explanationStrategy = NakedSingleExplanation(),
 						additionalInfo = ""
 					), isUserGuessed = false, isRevealed = false, explanation = emptyList()

@@ -1,7 +1,9 @@
+import com.example.sudoku.model.House
 import com.example.sudoku.model.SudokuGrid
 import com.example.sudoku.solver.Hint
 import com.example.sudoku.solver.HintProvider
 import com.example.sudoku.solver.HintType
+import com.example.sudoku.solver.fillCandidates
 import junit.framework.TestCase.assertNull
 import org.junit.Test
 import kotlin.time.measureTime
@@ -23,16 +25,20 @@ class HintProviderTest {
 
 	@Test
 	fun `should find correct possible values`() {
-		val hintProvider = HintProvider(grid.getArray())
-		val possibleValues = hintProvider.getPossibleValues(0, 1)
+		val hintProvider = HintProvider()
+		val possibleValues = hintProvider.getPossibleValues(grid.getArray(), 0, 1)
 		assert(possibleValues.containsAll(setOf(3, 6, 8, 9)))
 	}
 
 	@Test
 	fun `should find naked single`() {
-		val hintProvider = HintProvider(grid.getArray())
-		val nakedSingle = hintProvider.findNakedSingle()
-		assert(nakedSingle == Hint(3, 2, 8, HintType.NAKED_SINGLE))
+		val hintProvider = HintProvider()
+		val updatedGrid = hintProvider.fillCandidates(grid.getArray())
+		val nakedSingle = hintProvider.findNakedSingle(updatedGrid)
+		val (row, col, value, type) = nakedSingle!!
+		assert(
+			row == 3 && col == 2 && value == 8 && type == HintType.NakedSingle
+		)
 	}
 
 	@Test
@@ -50,18 +56,173 @@ class HintProviderTest {
 				"008007100"
 			)
 		)
-		val hintProvider = HintProvider(grid.getArray())
-		val hiddenSingle = hintProvider.findHiddenSingle()
+		val hintProvider = HintProvider()
+		val updatedGrid = hintProvider.fillCandidates(grid.getArray())
+		
+		// Generate Houses from updatedGrid (using Row houses in this test)
+		val houses = mutableListOf<House>()
+		(0..8).forEach { row ->
+			houses.add(House.Row(updatedGrid.filter { it.row == row }, row))
+		}
+		
+		// Loop over houses and find a hidden single in one house
+		var hiddenSingle: Hint? = null
+		for (house in houses) {
+			hiddenSingle = hintProvider.findHiddenSingle(house)
+			if (hiddenSingle != null) break
+		}
+		
+		val (row, col, value, type) = hiddenSingle!!
+		assert(row == 0 && col == 1 && value == 1 && type!!::class == HintType.HiddenSingle::class)
+	}
 
-		assert(hiddenSingle == Hint(0, 1, 1, HintType.HIDDEN_SINGLE, "row"))
+	@Test
+	fun `should find locked candidate`() {
+		val grid = SudokuGrid.fromStringArray(
+			arrayOf(
+				"521349678",
+				"008167352",
+				"673000004",
+				"180400030",
+				"204700800",
+				"006000045",
+				"009083001",
+				"360014580",
+				"810070403"
+			)
+		)
+		val hintProvider = HintProvider()
+		val updatedGrid = hintProvider.fillCandidates(grid.getArray())
+		// Generate houses from updatedGrid
+		val houses = mutableListOf<House>()
+		(0..8).forEach { row ->
+			houses.add(House.Row(updatedGrid.filter { it.row == row }, row))
+		}
+		(0..8).forEach { col ->
+			houses.add(House.Column(updatedGrid.filter { it.col == col }, col))
+		}
+		(0 until 3).forEach { boxRow ->
+			(0 until 3).forEach { boxCol ->
+				val blockCells = updatedGrid.filter { it.row / 3 == boxRow && it.col / 3 == boxCol }
+				houses.add(House.Block(blockCells, boxRow, boxCol))
+			}
+		}
+		var lockedCandidate: Hint? = null
+		for (house in houses) {
+			lockedCandidate = hintProvider.findLockedCandidate(house, updatedGrid)
+			if (lockedCandidate != null) break
+		}
+		assert(lockedCandidate != null)
+	}
+
+	@Test
+	fun `should find pointing candidates`() {
+		val grid = SudokuGrid.fromStringArray(
+			arrayOf(
+				"521349678",
+				"008167352",
+				"673000004",
+				"180400030",
+				"204700800",
+				"006000045",
+				"009083001",
+				"360014580",
+				"810070403"
+			)
+		)
+		val hintProvider = HintProvider()
+		val updatedGrid = hintProvider.fillCandidates(grid.getArray())
+		val blockHouses = mutableListOf<House.Block>()
+		(0 until 3).forEach { boxRow ->
+			(0 until 3).forEach { boxCol ->
+				val blockCells = updatedGrid.filter { it.row / 3 == boxRow && it.col / 3 == boxCol }
+				blockHouses.add(House.Block(blockCells, boxRow, boxCol))
+			}
+		}
+		val pointingCandidates = mutableListOf<List<Hint>>()
+		for (house in blockHouses) {
+			val hint = hintProvider.findPointingCandidates(house, updatedGrid)
+			if (hint.isNotEmpty())
+				pointingCandidates += hint
+		}
+		println(pointingCandidates.joinToString("\n"))
+		assert(pointingCandidates.isNotEmpty())
+	}
+
+	@Test
+	fun `should find claiming candidates`() {
+		val grid = SudokuGrid.fromStringArray(
+			arrayOf(
+				"521349678",
+				"008167352",
+				"673000004",
+				"180400030",
+				"204700800",
+				"006000045",
+				"009083001",
+				"360014580",
+				"810070403"
+			)
+		)
+		val hintProvider = HintProvider()
+		val updatedGrid = hintProvider.fillCandidates(grid.getArray())
+		val houses = mutableListOf<House>()
+		(0..8).forEach { row ->
+			houses.add(House.Row(updatedGrid.filter { it.row == row }, row))
+		}
+		(0..8).forEach { col ->
+			houses.add(House.Column(updatedGrid.filter { it.col == col }, col))
+		}
+		val claimingCandidates = mutableListOf<Hint>()
+		houses.forEach { house ->
+			val hint = hintProvider.findClaimingCandidates(house, updatedGrid)
+			claimingCandidates += hint
+		}
+		assert(claimingCandidates.isNotEmpty())
+	}
+
+	@Test
+	fun `should return null for no locked candidates`() {
+		val grid = SudokuGrid.fromStringArray(
+			arrayOf(
+				"123456789",
+				"456789123",
+				"789123456",
+				"234567891",
+				"567891234",
+				"891234567",
+				"345678912",
+				"678912345",
+				"912345678"
+			)
+		)
+		val hintProvider = HintProvider()
+		val updatedGrid = hintProvider.fillCandidates(grid.getArray())
+		val houses = mutableListOf<House>()
+		(0..8).forEach { row ->
+			houses.add(House.Row(updatedGrid.filter { it.row == row }, row))
+		}
+		(0..8).forEach { col ->
+			houses.add(House.Column(updatedGrid.filter { it.col == col }, col))
+		}
+		(0 until 3).forEach { boxRow ->
+			(0 until 3).forEach { boxCol ->
+				val blockCells = updatedGrid.filter { it.row / 3 == boxRow && it.col / 3 == boxCol }
+				houses.add(House.Block(blockCells, boxRow, boxCol))
+			}
+		}
+		for (house in houses) {
+			val lockedCandidate = hintProvider.findLockedCandidate(house, updatedGrid)
+			assertNull(lockedCandidate)
+		}
 	}
 
 	@Test
 	fun `should return null for empty grid`() {
 		val grid = SudokuGrid()
-		val hintProvider = HintProvider(grid.getArray())
+		val hintProvider = HintProvider()
 		val time = measureTime {
-			val hint = hintProvider.provideHint()
+			val hint = hintProvider.provideHint(data = grid.getArray())
 			assertNull(hint)
 		}
 		println("Time: $time")

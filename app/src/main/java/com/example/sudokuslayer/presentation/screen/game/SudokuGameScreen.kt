@@ -81,7 +81,7 @@ fun SudokuGameScreen(
 
 	val scaffoldState = rememberBottomSheetScaffoldState(
 		bottomSheetState = rememberStandardBottomSheetState(
-			initialValue = SheetValue.Expanded,
+			initialValue = SheetValue.Hidden,
 			skipHiddenState = false
 		)
 	)

@@ -276,7 +276,10 @@ class SudokuGameViewModel(
 				val updatedLogs = _uiState.value.hintLogs.toMutableList()
 				val lastHintId = updatedLogs.indexOfLast { it.hint == _uiState.value.lastHint }
 				val log = updatedLogs[lastHintId]
-				updatedLogs[lastHintId] = log.copy(isUserGuessed = true, explanation = log.explanation + "~You guessed correctly!~")
+				updatedLogs[lastHintId] = log.copy(
+					isUserGuessed = true,
+					explanation = log.explanation + "~You guessed correctly!~"
+				)
 				_uiState.update {
 					it.copy(
 						lastHint = null,
@@ -345,7 +348,7 @@ class SudokuGameViewModel(
 		viewModelScope.launch {
 			if (_uiState.value.gameState == GameState.VICTORY) return@launch
 			val updatedSudoku = _uiState.value.sudoku.clone()
-			val hint = HintProvider(updatedSudoku.getArray()).provideHint()
+			val hint = HintProvider().provideHint(updatedSudoku.getArray())
 
 			Log.d("Hint", hint.toString())
 
@@ -353,10 +356,11 @@ class SudokuGameViewModel(
 				updatedSudoku.addAttribute(hint.row, hint.col, CellAttributes.HINT_FOCUS)
 				selectCell(hint.row, hint.col)
 
-				val explanationSteps = listOf("Focus at cell [${hint.row + 1}, ${hint.col + 1}]!") + hint.explanationStrategy.generateHintExplanationSteps(
-					updatedSudoku,
-					hint
-				)
+				val explanationSteps =
+					listOf("Focus at cell [${hint.row + 1}, ${hint.col + 1}]!") + ( hint.explanationStrategy?.generateHintExplanationSteps(
+						updatedSudoku,
+						hint
+					) ?: emptyList())
 				val hintLog = HintLog(
 					hint = hint,
 					isUserGuessed = false,
