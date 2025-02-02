@@ -21,14 +21,14 @@ class SudokuGridTest {
     @Test
     fun `should return correct row`(){
         val expected = intArrayOf(2, 8, 7, 4, 1, 9, 6, 3, 5)
-        val result = grid.getRow(7)
+        val result = grid.getRow(7).map { it.number }.toIntArray()
         assertArrayEquals(expected, result)
     }
 
     @Test
     fun `should return correct col`(){
         val expected = intArrayOf(5, 6, 1, 8, 4, 7, 9, 2, 3)
-        val result = grid.getCol(0)
+        val result = grid.getCol(0).map { it.number }.toIntArray()
         assertArrayEquals(expected, result)
     }
 
@@ -38,8 +38,8 @@ class SudokuGridTest {
             intArrayOf(5, 3, 7),
             intArrayOf(4, 1, 9),
             intArrayOf(2, 8, 6),
-        )
-        val result = grid.getSubgrid(8, 5)
+        ).flatMap { it.toList() }.toIntArray()
+        val result = grid.getSubgrid(8, 5).map { it.number }.toIntArray()
         assertArrayEquals(expected, result)
     }
 }

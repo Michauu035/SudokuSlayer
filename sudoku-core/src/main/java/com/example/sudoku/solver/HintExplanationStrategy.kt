@@ -27,10 +27,10 @@ class HiddenSingleExplanation : HintExplanationStrategy {
 		}
 
 		val blockedCells = when (hintType.groupType) {
-			GroupType.ROW -> "columns { " + grid.getRow(hint.row).withIndex().filter { it.value == 0 }
-				.map { it.index + 1 }.joinToString() + " }"
-			GroupType.COLUMN -> "rows { " + grid.getCol(hint.col).withIndex().filter { it.value == 0 }
-				.map { it.index + 1 }.joinToString() + " }"
+			GroupType.ROW -> "columns { " + grid.getRow(hint.row).filter { it.number == 0 }
+				.map { it.col + 1 }.joinToString() + " }"
+			GroupType.COLUMN -> "rows { " + grid.getCol(hint.col).filter { it.number == 0 }
+				.map { it.row + 1 }.joinToString() + " }"
 			GroupType.BLOCK -> "other cells"
 		}
 
@@ -44,6 +44,68 @@ class HiddenSingleExplanation : HintExplanationStrategy {
 			"In '$scope', <${hint.value}> cannot be placed in $blockedCells because $blockedReason.",
 			"Therefore, the cell at [${hint.row + 1}, ${hint.col + 1}] must contain <${hint.value}>.",
 			"*Hidden Single*"
+		)
+	}
+}
+
+class ClaimingCandidateExplanation : HintExplanationStrategy {
+	override fun generateHintExplanationSteps(grid: SudokuGrid, hint: Hint): List<String> {
+		val hintType = hint.type as HintType.ClaimingCandidate
+		val scope = when (hintType.groupType) {
+			GroupType.ROW -> "row ${hint.row + 1}"
+			GroupType.COLUMN -> "col ${hint.col + 1}"
+			else -> throw IllegalArgumentException("Claiming Candidate hint type must be either row or column")
+		}
+
+		val blockedCells = when (hintType.groupType) {
+			GroupType.ROW -> "columns { " + grid.getRow(hint.row).filter { it.number == 0 }
+				.map { it.col+ 1 }.joinToString() + " }"
+			GroupType.COLUMN -> "rows { " + grid.getCol(hint.col).filter { it.number == 0 }
+				.map { it.row + 1 }.joinToString() + " }"
+			else -> throw IllegalArgumentException("Claiming Candidate hint type must be either row or column")
+		}
+
+		val blockedReason = when (hintType.groupType) {
+			GroupType.ROW -> "they are blocked by ${hint.value} in the same block"
+			GroupType.COLUMN -> "they are blocked by ${hint.value} in the same block"
+			else -> throw IllegalArgumentException("Claiming Candidate hint type must be either row or column")
+		}
+
+		return listOf(
+			"In $scope, <${hint.value}> cannot be placed in $blockedCells because $blockedReason.",
+			"Therefore, the cell at [${hint.row + 1}, ${hint.col + 1}] must contain <${hint.value}>.",
+			"*Claiming Candidate*"
+		)
+	}
+}
+
+class PointingCandidateExplanation : HintExplanationStrategy {
+	override fun generateHintExplanationSteps(grid: SudokuGrid, hint: Hint): List<String> {
+		val hintType = hint.type as HintType.PointingCandidate
+		val scope = when (hintType.groupType) {
+			GroupType.ROW -> "row ${hint.row + 1}"
+			GroupType.COLUMN -> "col ${hint.col + 1}"
+			else -> throw IllegalArgumentException("Pointing Candidate hint type must be either row or column")
+		}
+
+		val blockedCells = when (hintType.groupType) {
+			GroupType.ROW -> "columns { " + grid.getRow(hint.row).filter { it.number == 0 }
+				.map { it.col + 1 }.joinToString() + " }"
+			GroupType.COLUMN -> "rows { " + grid.getCol(hint.col).filter { it.number == 0 }
+				.map { it.row + 1 }.joinToString() + " }"
+			else -> throw IllegalArgumentException("Pointing Candidate hint type must be either row or column")
+		}
+
+		val blockedReason = when (hintType.groupType) {
+			GroupType.ROW -> "they are blocked by ${hint.value} in the same block"
+			GroupType.COLUMN -> "they are blocked by ${hint.value} in the same block"
+			else -> throw IllegalArgumentException("Pointing Candidate hint type must be either row or column")
+		}
+
+		return listOf(
+			"In $scope, <${hint.value}> cannot be placed in $blockedCells because $blockedReason.",
+			"Therefore, the cell at [${hint.row + 1}, ${hint.col + 1}] must contain <${hint.value}>.",
+			"*Pointing Candidate*"
 		)
 	}
 }

@@ -85,7 +85,7 @@ class SudokuSolverSubgridTest(
 
     @Test
     fun `should validate subgrid correctly`(){
-        assertEquals(expected, solver.checkSubgrid(subgrid))
+        assertEquals(expected, solver.checkSubgrid(subgrid.flatMap { it.toList() }.toIntArray()))
     }
 }
 

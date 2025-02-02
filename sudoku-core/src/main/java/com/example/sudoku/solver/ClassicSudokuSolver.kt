@@ -17,8 +17,8 @@ object ClassicSudokuSolver : SudokuSolver {
 		return checkRow(col)
 	}
 
-	override fun checkSubgrid(subgrid: Array<IntArray>): Boolean {
-		val arr = subgrid.flatMap { it.asList() }.filter { it != 0 }.toIntArray()
+	override fun checkSubgrid(subgrid: IntArray): Boolean {
+		val arr = subgrid.filter { it != 0 }.toIntArray()
 		return checkRow(arr)
 	}
 
@@ -28,9 +28,10 @@ object ClassicSudokuSolver : SudokuSolver {
 		colNum: Int,
 		num: Int
 	): Boolean {
-		val row = sudoku.getRow(rowNum)
-		val col = sudoku.getCol(colNum)
-		val subgrid = sudoku.getSubgrid(rowNum, colNum).flatMap { it.asList() }
+		val row = sudoku.getRow(rowNum).map { it.number }
+		val col = sudoku.getCol(colNum).map { it.number }
+		val subgrid = sudoku.getSubgrid(rowNum, colNum)
+			.map{ it.number }
 
 		if (num in row)
 			return false
@@ -62,14 +63,14 @@ object ClassicSudokuSolver : SudokuSolver {
 	 */
 	override fun checkGrid(sudoku: SudokuGrid): Boolean {
 		for (i in 0..8) {
-			if (!checkRow(sudoku.getRow(i))) return false
+			if (!checkRow(sudoku.getRow(i).map { it.number }.toIntArray())) return false
 		}
 		for (i in 0..8) {
-			if (!checkColumn(sudoku.getCol(i))) return false
+			if (!checkColumn(sudoku.getCol(i).map { it.number }.toIntArray())) return false
 		}
 		for (row in 0..6 step 3) {
 			for (col in 0..6 step 3) {
-				if (!checkSubgrid(sudoku.getSubgrid(row, col))) return false
+				if (!checkSubgrid(sudoku.getSubgrid(row, col).map { it.number }.toIntArray())) return false
 			}
 		}
 		return true
