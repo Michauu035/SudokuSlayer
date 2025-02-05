@@ -15,5 +15,14 @@ kotlin {
 }
 
 dependencies {
-	testImplementation(libs.junit)
+	implementation(libs.annotations)
+
+	testImplementation(libs.junit.jupiter)
+	testImplementation(libs.junit.jupiter.api)
+	compileOnly(libs.junit.jupiter.params)
+	testRuntimeOnly(libs.junit.jupiter.engine)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }

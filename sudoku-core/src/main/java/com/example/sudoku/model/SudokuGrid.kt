@@ -1,9 +1,10 @@
 package com.example.sudoku.model
 
+import androidx.annotation.Size
 import kotlin.random.Random
 
 class SudokuGrid(
-	private var data: Array<SudokuCellData> = createEmptyGrid()
+	@Size(81) private var data: Array<SudokuCellData> = createEmptyGrid()
 ) {
 	var seed: Long? = null
 		private set
@@ -79,7 +80,7 @@ class SudokuGrid(
 				row.mapIndexed { colIndex, value -> SudokuCellData(rowIndex, colIndex, value) }
 			}.toTypedArray()
 
-		fun fromIntArray(gridData: Array<IntArray>): SudokuGrid =
+		fun fromIntArray(@Size(9) gridData: Array<IntArray>): SudokuGrid =
 			SudokuGrid(intArrayToData(gridData))
 
 		fun SudokuGrid.withSeed(seed: Long): SudokuGrid = this.apply {
@@ -87,9 +88,9 @@ class SudokuGrid(
 			this.random = Random(seed)
 		}
 
-		fun fromCellData(cells: Array<SudokuCellData>): SudokuGrid = SudokuGrid(cells.clone())
+		fun fromCellData(@Size(81) cells: Array<SudokuCellData>): SudokuGrid = SudokuGrid(cells.clone())
 
-		fun fromStringArray(gridData: Array<String>): SudokuGrid =
+		fun fromStringArray(@Size(9) gridData: Array<String>): SudokuGrid =
 			fromIntArray(gridData.map { row -> row.map { it.toString().toInt() }.toIntArray() }
 				.toTypedArray())
 	}

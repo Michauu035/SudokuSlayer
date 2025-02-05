@@ -1,34 +1,63 @@
+
 import com.example.sudoku.generator.ClassicSudokuGenerator
 import com.example.sudoku.solver.ClassicSudokuSolver
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 
+@DisplayName("Classic Sudoku Generator")
 class SudokuGeneratorTest {
-    private val generator = ClassicSudokuGenerator()
+    private lateinit var generator: ClassicSudokuGenerator
+    
+    @BeforeEach
+    fun setup() {
+        generator = ClassicSudokuGenerator()
+    }
+
     @Test
-    fun `should generate valid full sudoku grid`(){
-        val expected = true
+    @DisplayName("Should generate valid full Sudoku grid")
+    fun generateValidFullGrid() {
         val grid = generator.generateFullSudokuGrid(12345L)
-        println(grid.toString())
-        val result = ClassicSudokuSolver.isValidSolution(grid)
-        assertEquals(expected, result)
+        
+        assertEquals(
+            true,
+            ClassicSudokuSolver.isValidSolution(grid),
+            "Generated grid should be a valid Sudoku solution"
+        )
+    }
+
+    @ParameterizedTest(name = "Should remove {0} cells with seed {1}")
+    @CsvSource(
+        "55, 8153123",
+        "40, 8153123",
+        "30, 8153123"
+    )
+    fun removeCells(cellsToRemove: Int, seed: Long) {
+        val grid = generator.createSudoku(cellsToRemove, seed)
+        
+        assertEquals(
+            cellsToRemove,
+            grid.getArray().count { it.number == 0 },
+            "Should have exactly $cellsToRemove empty cells"
+        )
     }
 
     @Test
-    fun `should properly remove cells`() {
-        val cellsToRemove = 55
-        val grid = generator.createSudoku(cellsToRemove, 8153123L)
-        println(grid.toString())
-        assertEquals(cellsToRemove, grid.getArray().count { it.number == 0})
-    }
-
-    @Test
-    fun `should generate identical full grids given the same seed`(){
-        var grid1 = generator.createSudoku(53, 12345L)
-        var grid2 = generator.createSudoku(53, 12345L)
-        println(grid1.toString())
-        println("\n")
-        println(grid2.toString())
-        assertEquals(grid1.toString(), grid2.toString())
+    @DisplayName("Should generate identical grids with same seed")
+    fun generateIdenticalGrids() {
+        val seed = 12345L
+        val cellsToRemove = 53
+        
+        val grid1 = generator.createSudoku(cellsToRemove, seed)
+        val grid2 = generator.createSudoku(cellsToRemove, seed)
+        
+        assertEquals(
+            grid1.toString(),
+            grid2.toString(),
+            "Grids generated with same seed should be identical"
+        )
     }
 }

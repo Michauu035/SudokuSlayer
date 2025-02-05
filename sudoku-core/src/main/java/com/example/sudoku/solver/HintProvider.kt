@@ -196,17 +196,19 @@ class HintProvider() {
 		val hints = mutableListOf<Hint>()
 		val candidateDigits = house.cells.flatMap { it.candidates }.toSet()
 		for (digit in candidateDigits) {
-			val candidateCells = house.cells.filter { it.number == 0 }
+			val candidateCells = house.cells.filter { it.number == 0 && digit in it.candidates }
 			if (candidateCells.isNotEmpty()) {
 				// Check if candidate cells belong to the same block (using block index)
 				val uniqueBlocks = candidateCells.map { (it.row / 3) * 3 + (it.col / 3) }.toSet()
 				if (uniqueBlocks.size == 1) {
 					val blockIndex = uniqueBlocks.first()
-					val blockCells = getBox(data, blockIndex / 3, blockIndex % 3).filter {
-						!candidateCells.containsCell(it) && it.number == 0 && digit in it.candidates
-					}
+					val blockCells = getBox(data, blockIndex / 3, blockIndex % 3)
+						.filter {
+							!candidateCells.containsCell(it) && it.number == 0 && digit in it.candidates
+						}
 
 					blockCells.forEach {
+						println(it)
 						hints.add(
 							Hint(
 								row = it.row,
@@ -260,7 +262,7 @@ class HintProvider() {
 	}
 }
 
-fun List<SudokuCellData>.containsCell(cell: SudokuCellData): Boolean {
+fun Collection<SudokuCellData>.containsCell(cell: SudokuCellData): Boolean {
 	return this.any { it.row == cell.row && it.col == cell.col }
 }
 

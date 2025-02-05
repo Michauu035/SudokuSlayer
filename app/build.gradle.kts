@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.protobuf)
+    alias(libs.plugins.android.junit5)
 }
 
 android {
@@ -75,12 +76,16 @@ dependencies {
     implementation(libs.compose.unstyled)
     implementation(libs.catppuccin.palette)
     implementation(libs.catppuccin.compose)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
+
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    androidTestImplementation(libs.junit.jupiter.api)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 	implementation(project(":sudoku-core"))
 }
