@@ -1,9 +1,10 @@
 package com.example.sudoku.model
 
+import androidx.annotation.Size
 import kotlin.random.Random
 
 class SudokuGrid(
-	private var data: Array<SudokuCellData> = createEmptyGrid()
+	@Size(81) private var data: Array<SudokuCellData> = createEmptyGrid()
 ) {
 	var seed: Long? = null
 		private set
@@ -38,27 +39,22 @@ class SudokuGrid(
 		)
 	}
 
-	fun getRow(row: Int): IntArray {
+	fun getRow(row: Int): Array<SudokuCellData> {
 		require(row in 0..8) { "Index out of bounds" }
-		return data.filter { it.row == row }.map { it.number }.toIntArray()
+		return data.filter { it.row == row }.toTypedArray()
 	}
 
-	fun getCol(col: Int): IntArray {
+	fun getCol(col: Int): Array<SudokuCellData> {
 		require(col in 0..8) { "Index out of bounds" }
-		return data.filter { it.col == col }.map { it.number }.toIntArray()
+		return data.filter { it.col == col }.toTypedArray()
 	}
 
-	fun getSubgrid(rowNum: Int, colNum: Int): Array<IntArray> {
+	fun getSubgrid(rowNum: Int, colNum: Int): Array<SudokuCellData> {
 		requireValidIndex(rowNum, colNum)
-		val colStart: Int = ( colNum / 3 ) * 3
-		val rowStart: Int = ( rowNum / 3 ) * 3
-		val filteredCol = data.filter { it.col >= colStart && it.col <= colStart + 2 }
-		val subgrid: Array<IntArray> = arrayOf(
-			filteredCol.filter { it.row == rowStart }.map { it.number }.toIntArray(),
-			filteredCol.filter { it.row == rowStart + 1 }.map { it.number }.toIntArray(),
-			filteredCol.filter { it.row == rowStart + 2 }.map { it.number }.toIntArray()
-		)
-		return subgrid
+		val startRow = (rowNum / 3) * 3
+		val startCol = (colNum / 3) * 3
+		return data.filter { it.row in startRow until startRow + 3 && it.col in startCol until startCol + 3 }
+			.toTypedArray()
 	}
 
 	fun getEmptyCellsCount(): Int = data.count { it.number == 0 }
@@ -84,7 +80,7 @@ class SudokuGrid(
 				row.mapIndexed { colIndex, value -> SudokuCellData(rowIndex, colIndex, value) }
 			}.toTypedArray()
 
-		fun fromIntArray(gridData: Array<IntArray>): SudokuGrid =
+		fun fromIntArray(@Size(9) gridData: Array<IntArray>): SudokuGrid =
 			SudokuGrid(intArrayToData(gridData))
 
 		fun SudokuGrid.withSeed(seed: Long): SudokuGrid = this.apply {
@@ -92,10 +88,11 @@ class SudokuGrid(
 			this.random = Random(seed)
 		}
 
-		fun fromCellData(cells: Array<SudokuCellData>): SudokuGrid = SudokuGrid(cells.clone())
+		fun fromCellData(@Size(81) cells: Array<SudokuCellData>): SudokuGrid = SudokuGrid(cells.clone())
 
-		fun fromStringArray(gridData: Array<String>): SudokuGrid =
-			fromIntArray(gridData.map { row -> row.map { it.toString().toInt() }.toIntArray() }.toTypedArray())
+		fun fromStringArray(@Size(9) gridData: Array<String>): SudokuGrid =
+			fromIntArray(gridData.map { row -> row.map { it.toString().toInt() }.toIntArray() }
+				.toTypedArray())
 	}
 
 	// Delegating Cell Manager functionality

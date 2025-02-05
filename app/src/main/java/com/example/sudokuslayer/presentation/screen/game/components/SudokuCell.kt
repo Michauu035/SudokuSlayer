@@ -1,5 +1,12 @@
 package com.example.sudokuslayer.presentation.screen.game.components
 
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
@@ -15,10 +22,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sudoku.model.SudokuCellData
 import com.example.sudokuslayer.presentation.ui.theme.extendedColorScheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun SudokuCell(
@@ -47,7 +62,6 @@ fun SudokuCell(
 	val hintFocusColor = MaterialTheme.extendedColorScheme.yellow.colorContainer
 
 	val bgColor = when {
-		isHintFocus -> hintFocusColor
 		isSelected -> selectedBgColor
 		isRowColumnHighlighted -> highlightedRowColumnColor
 		else -> baseBgColor
@@ -65,7 +79,8 @@ fun SudokuCell(
 	}
 
 	val textColor = when {
-		isHintRevealed || isHintFocus -> MaterialTheme.extendedColorScheme.yellow.onColorContainer
+		isHintRevealed -> MaterialTheme.extendedColorScheme.yellow.onColorContainer
+		isHintFocus -> hintFocusColor
 		isBreakingRules -> MaterialTheme.colorScheme.onError
 		isNumberHighlightApplicable -> MaterialTheme.colorScheme.onTertiaryContainer
 		isGenerated -> MaterialTheme.colorScheme.onSurface
@@ -108,14 +123,48 @@ fun SudokuCell(
 		else -> Modifier
 	}
 
+
+
+	val combinedModifier = cornerCellModifier
+		.aspectRatio(1f)
+		.clickable(onClick = onClick)
+
 	Surface(
 		color = bgColor,
-		modifier = cornerCellModifier
-			.aspectRatio(1f)
-			.clickable(
-				onClick = onClick
-			),
+		modifier = combinedModifier,
 	) {
+		if (isHintFocus) {
+			val animationDuration = 5000
+			val animationFrequency = 10
+			val infiniteTransition = rememberInfiniteTransition()
+			val animationColor by infiniteTransition.animateColor(
+				initialValue = hintFocusColor,
+				targetValue = MaterialTheme.colorScheme.background,
+				animationSpec = infiniteRepeatable(
+					animation = tween(animationDuration/animationFrequency, easing = LinearEasing),
+					repeatMode = RepeatMode.Reverse
+				)
+			)
+
+			var showAnimation by remember { mutableStateOf(true) }
+
+			LaunchedEffect(Unit) {
+				delay(animationDuration.toLong())
+				showAnimation = false
+			}
+
+			if (showAnimation) {
+				Canvas(modifier = Modifier.fillMaxSize().padding(2.dp)) {
+					val strokeWidth = 4.dp.toPx()
+					drawRect(
+						color = animationColor,
+						size = size,
+						style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+					)
+				}
+			}
+
+		}
 		if (isNumberHighlightApplicable) {
 			ElevatedSurface(
 				color = circleColor,

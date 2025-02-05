@@ -10,6 +10,8 @@ import com.example.sudoku.model.SudokuGrid
 import com.example.sudoku.solver.ClassicSudokuSolver
 import com.example.sudoku.solver.Hint
 import com.example.sudoku.solver.HintProvider
+import com.example.sudoku.solver.HintType
+import com.example.sudoku.solver.fillCandidates
 import com.example.sudokuslayer.data.datastore.SudokuDataStoreRepository
 import com.example.sudokuslayer.presentation.screen.game.model.GameState
 import com.example.sudokuslayer.presentation.screen.game.model.HintLog
@@ -159,12 +161,12 @@ class SudokuGameViewModel(
 			when (inputMode) {
 				InputMode.NUMBER -> handleNumberInput(number, updatedSudoku, selectedCell)
 
-				InputMode.NOTE -> handleNoteInput(number, updatedSudoku, selectedCell)
+				InputMode.NOTE -> handleNoteInput(number, updatedSudoku, selectedCell, isHint)
 
 				InputMode.COLOR -> {}
 			}
 
-			if (isHint) {
+			if (isHint && InputMode.NUMBER == inputMode) {
 				updatedSudoku.removeAttribute(row, col, CellAttributes.HINT_FOCUS)
 				updatedSudoku.addAttribute(row, col, CellAttributes.HINT_REVEALED)
 			}
@@ -294,12 +296,17 @@ class SudokuGameViewModel(
 		}
 	}
 
-	private fun handleNoteInput(number: Int, sudoku: SudokuGrid, selectedCell: Pair<Int, Int>) {
+	private fun handleNoteInput(
+		number: Int,
+		sudoku: SudokuGrid,
+		selectedCell: Pair<Int, Int>,
+		isHint: Boolean = false
+	) {
 		val (row, col) = selectedCell
 		if (number == 0) {
 			sudoku[row, col] = 0
 			sudoku.clearCornerNotes(row, col)
-		} else if (number in sudoku[row, col].cornerNotes) {
+		} else if (number in sudoku[row, col].cornerNotes && !isHint) {
 			sudoku.removeCornerNote(row, col, number)
 		} else {
 			sudoku.addCornerNote(row, col, number)
@@ -348,19 +355,71 @@ class SudokuGameViewModel(
 		viewModelScope.launch {
 			if (_uiState.value.gameState == GameState.VICTORY) return@launch
 			val updatedSudoku = _uiState.value.sudoku.clone()
-			val hint = HintProvider().provideHint(updatedSudoku.getArray())
+			val hintProvider = HintProvider()
+			// Fill candidates once
+			val filledCandidatesGrid = hintProvider.fillCandidates(updatedSudoku.getArray())
+
+			// Remove candidates from all affected cells for locked candidate hints
+			_uiState.value.hintLogs.forEach { log ->
+				log.hint.let { hint ->
+					when (hint.type) {
+						is HintType.ClaimingCandidate, is HintType.PointingCandidate -> {
+							if (hint.affectedCells.isNotEmpty()) {
+								hint.affectedCells.forEach { affected ->
+									filledCandidatesGrid.indexOfFirst { it.row == affected.row && it.col == affected.col }
+										.takeIf { it != -1 }?.let { index ->
+											val cell = filledCandidatesGrid[index]
+											filledCandidatesGrid[index] =
+												cell.copy(candidates = cell.candidates - hint.value)
+										}
+								}
+							} else {
+								filledCandidatesGrid.indexOfFirst { it.row == hint.row && it.col == hint.col }
+									.takeIf { it != -1 }?.let { index ->
+										val cell = filledCandidatesGrid[index]
+										filledCandidatesGrid[index] =
+											cell.copy(candidates = cell.candidates - hint.value)
+									}
+							}
+						}
+						else -> Unit
+					}
+				}
+			}
+
+			val hint: Hint? = hintProvider.provideHint(data = filledCandidatesGrid)
 
 			Log.d("Hint", hint.toString())
-
 			if (hint != null) {
-				updatedSudoku.addAttribute(hint.row, hint.col, CellAttributes.HINT_FOCUS)
-				selectCell(hint.row, hint.col)
+				when (hint.type!!) {
+					is HintType.HiddenSingle, is HintType.NakedSingle -> {
+						updatedSudoku.addAttribute(hint.row, hint.col, CellAttributes.HINT_FOCUS)
+					}
 
-				val explanationSteps =
-					listOf("Focus at cell [${hint.row + 1}, ${hint.col + 1}]!") + ( hint.explanationStrategy?.generateHintExplanationSteps(
-						updatedSudoku,
-						hint
-					) ?: emptyList())
+					is HintType.PointingCandidate -> {
+							hint.enforcingCells.forEach { cell ->
+								updatedSudoku.addAttribute(
+									cell.row,
+									cell.col,
+									CellAttributes.HINT_FOCUS
+								)
+							}
+					}
+
+					is HintType.ClaimingCandidate -> {
+							hint.enforcingCells.forEach { cell ->
+								updatedSudoku.addAttribute(
+									cell.row,
+									cell.col,
+									CellAttributes.HINT_FOCUS
+								)
+						}
+					}
+				}
+
+
+				selectCell(hint.row, hint.col)
+				val explanationSteps = hint.explanationStrategy?.generateHintExplanationSteps(updatedSudoku, hint) ?: emptyList()
 				val hintLog = HintLog(
 					hint = hint,
 					isUserGuessed = false,
@@ -384,16 +443,34 @@ class SudokuGameViewModel(
 			if (_uiState.value.sudoku[hint.row, hint.col].number != 0) return@launch
 
 			selectCell(hint.row, hint.col)
-			inputNumber(hint.value, hint.row to hint.col, InputMode.NUMBER, true)
+			when (hint.type) {
+				is HintType.PointingCandidate -> {
+					val otherCells = hint.enforcingCells
+					otherCells.forEach { cell ->
+						_uiState.value.sudoku.highlightMatchingCells(hint.value)
+						inputNumber(hint.value, cell.row to cell.col, InputMode.NOTE, true)
+					}
+				}
 
-			val updatedSudoku = _uiState.value.sudoku.clone()
+				is HintType.ClaimingCandidate -> {
+					val otherCells = hint.enforcingCells
+					otherCells.forEach { cell ->
+						_uiState.value.sudoku.highlightMatchingCells(hint.value)
+						inputNumber(hint.value, cell.row to cell.col, InputMode.NOTE, true)
+					}
+				}
+
+				else -> {
+					inputNumber(hint.value, hint.row to hint.col, InputMode.NUMBER, true)
+				}
+			}
+
 			val updatedLogs = _uiState.value.hintLogs.toMutableList()
 			val lastHintId = updatedLogs.indexOfLast { it.hint == _uiState.value.lastHint }
 			updatedLogs[lastHintId] = updatedLogs[lastHintId].copy(isRevealed = true)
 
 			_uiState.update {
 				it.copy(
-					sudoku = updatedSudoku,
 					hintLogs = updatedLogs,
 					lastHint = null
 				)
