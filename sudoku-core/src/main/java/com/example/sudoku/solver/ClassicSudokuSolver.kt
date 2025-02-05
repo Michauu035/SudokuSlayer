@@ -42,16 +42,12 @@ object ClassicSudokuSolver : SudokuSolver {
         if (colMask and (1 shl num) != 0) return false
         
         val subgridMask = numbersToMask(sudoku.getSubgrid(rowNum, colNum).map { it.number })
-        if (subgridMask and (1 shl num) != 0) return false
-
-        return true
+        return subgridMask and (1 shl num) == 0
     }
 
     override fun checkGrid(sudoku: SudokuGrid): Boolean {
         for (i in 0..8) {
             if (!checkRow(sudoku.getRow(i).map { it.number }.toIntArray())) return false
-        }
-        for (i in 0..8) {
             if (!checkColumn(sudoku.getCol(i).map { it.number }.toIntArray())) return false
         }
         for (row in 0..6 step 3) {
@@ -68,11 +64,29 @@ object ClassicSudokuSolver : SudokuSolver {
         return validGrid && noZeros
     }
 
+    private fun isSolvable(sudoku: SudokuGrid): Boolean {
+        // Check if current state is valid
+        if (!checkGrid(sudoku)) return false
+        
+        // Check if each empty cell has at least one valid move
+        for (row in 0..8) {
+            for (col in 0..8) {
+                if (sudoku[row, col].number == 0) {
+                    val validMoves = getValidMoves(sudoku, row, col)
+                    if (validMoves.isEmpty()) return false
+                }
+            }
+        }
+        return true
+    }
+
     override fun fillGrid(sudoku: SudokuGrid): Boolean {
+        // First check if the grid is solvable
+        if (!isSolvable(sudoku)) return false
+        
         val bestCell = findBestCell(sudoku) ?: return true
         val (row, col) = bestCell
         
-        // Get valid moves for the cell
         val validMoves = getValidMoves(sudoku, row, col)
         if (validMoves.isEmpty()) return false
         
