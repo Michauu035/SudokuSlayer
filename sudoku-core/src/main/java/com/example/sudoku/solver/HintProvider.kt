@@ -8,11 +8,15 @@ sealed interface HintType {
 	object NakedSingle : HintType
 	data class HiddenSingle(val groupType: GroupType) : HintType
 	data class PointingCandidate(val groupType: GroupType) : HintType
-	object ClaimingCandidate : HintType
+	data class ClaimingCandidate(val groupType: GroupType) : HintType
 }
 
-enum class GroupType {
-	ROW, COLUMN, BLOCK
+sealed interface GroupType {
+	val id: Int
+
+	data class Row(override val id: Int) : GroupType
+	data class Column(override val id: Int) : GroupType
+	data class Block(override val id: Int) : GroupType
 }
 
 data class Hint(
@@ -21,34 +25,53 @@ data class Hint(
 	val value: Int,
 	val type: HintType? = null,
 	val explanationStrategy: HintExplanationStrategy? = null,
-	val additionalInfo: String = ""
+	val additionalInfo: String = "",
+	val affectedCells: List<SudokuCellData> = emptyList(), // field that contains cells that are affected by the hint
+	val enforcingCells: List<SudokuCellData> = emptyList() // field that contains cells that enforce the hint
 )
 
 class HintProvider() {
 	fun provideHint(data: Array<SudokuCellData>): Hint? {
-		val updatedData = fillCandidates(data)
-
 		// Check Naked Single from entire grid.
-		findNakedSingle(updatedData)?.let { return it }
+		findNakedSingle(data)?.let { return it }
 
-		// Generate Houses from updatedData
+		// Generate Houses from data
 		val houses = mutableListOf<House>()
-		(0..8).forEach { row ->
-			houses.add(House.Row(updatedData.filter { it.row == row }, row))
-		}
-		(0..8).forEach { col ->
-			houses.add(House.Column(updatedData.filter { it.col == col }, col))
-		}
-		(0 until 3).forEach { boxRow ->
-			(0 until 3).forEach { boxCol ->
-				val blockCells = updatedData.filter { it.row / 3 == boxRow && it.col / 3 == boxCol }
-				houses.add(House.Block(blockCells, boxRow, boxCol))
-			}
+		(0..8).forEach { i ->
+			houses.add(House.Block(data.filter { it.row / 3 == i / 3 && it.col / 3 == i % 3 }, i))
+			houses.add(House.Row(data.filter { it.row == i }, i))
+			houses.add(House.Column(data.filter { it.col == i }, i))
 		}
 
 		// Loop over houses and try to find a hidden single in each one
 		for (house in houses) {
 			findHiddenSingle(house)?.let { return it }
+		}
+
+		// Loop over houses and try to find locked candidate eliminations
+		val lockedEliminations = mutableListOf<Hint>()
+		for (house in houses) {
+			findLockedCandidate(house, data)?.let { lockedEliminations.addAll(it) }
+		}
+		if (lockedEliminations.isNotEmpty()) {
+			// Use the candidate from the first elimination (could be refined to focus candidate that results in singles)
+			val representative = lockedEliminations.first()
+			// Merge locked eliminations into one Hint.
+			val aggregatedCells = lockedEliminations.filter { it.value == representative.value }.flatMap { locked ->
+				// Assuming each returned Hint's position represents an affected cell.
+				listOf(
+					SudokuCellData(
+						row = locked.row,
+						col = locked.col,
+						number = locked.value,
+					)
+				)
+			}
+			val enforcingCells = lockedEliminations.filter { it.value == representative.value }.flatMap { it.enforcingCells }
+			return representative.copy(
+				affectedCells = aggregatedCells,
+				enforcingCells = enforcingCells
+			)
 		}
 		return null
 	}
@@ -71,14 +94,17 @@ class HintProvider() {
 	fun findHiddenSingle(house: House): Hint? {
 		val emptyCells = house.cells.filter { it.number == 0 }
 		if (emptyCells.isEmpty()) return null
+
 		val diff = symmetricDifference(emptyCells.map { it.candidates })
-		if (diff.size == 1) {
-			val hintValue = diff.first()
+		if (diff.isEmpty()) return null
+
+		for (digit in diff) {
+			val hintValue = digit
 			val hintCell = emptyCells.find { it.candidates.contains(hintValue) }!!
 			val hiddenSingleType = when (house) {
-				is House.Row -> HintType.HiddenSingle(GroupType.ROW)
-				is House.Column -> HintType.HiddenSingle(GroupType.COLUMN)
-				is House.Block -> HintType.HiddenSingle(GroupType.BLOCK)
+				is House.Row -> HintType.HiddenSingle(GroupType.Row(house.id))
+				is House.Column -> HintType.HiddenSingle(GroupType.Column(house.id))
+				is House.Block -> HintType.HiddenSingle(GroupType.Block(house.id))
 			}
 			return Hint(
 				row = hintCell.row,
@@ -87,20 +113,22 @@ class HintProvider() {
 				type = hiddenSingleType,
 				explanationStrategy = HiddenSingleExplanation()
 			)
+
 		}
 		return null
 	}
 
-	fun findLockedCandidate(house: House, data: Array<SudokuCellData>): Hint? {
+	// Now returns a list of hints representing eliminated candidates
+	fun findLockedCandidate(house: House, data: Array<SudokuCellData>): List<Hint>? {
 		return when (house) {
 			is House.Block -> {
 				val hints = findPointingCandidates(house, data)
-				if (hints.isNotEmpty()) hints.first() else null
+				if (hints.isNotEmpty()) hints else null
 			}
 
 			is House.Row, is House.Column -> {
 				val hints = findClaimingCandidates(house, data)
-				if (hints.isNotEmpty()) hints.first() else null
+				if (hints.isNotEmpty()) hints else null
 			}
 		}
 	}
@@ -129,7 +157,9 @@ class HintProvider() {
 							row = it.row,
 							col = it.col,
 							value = digit,
-							type = HintType.PointingCandidate(GroupType.ROW)
+							type = HintType.PointingCandidate(GroupType.Row(it.row)),
+							explanationStrategy = PointingCandidateExplanation(),
+							enforcingCells = candidateCells
 						)
 					)
 				}
@@ -147,7 +177,9 @@ class HintProvider() {
 							row = it.row,
 							col = it.col,
 							value = digit,
-							type = HintType.PointingCandidate(GroupType.COLUMN)
+							type = HintType.PointingCandidate(GroupType.Column(it.col)),
+							explanationStrategy = PointingCandidateExplanation(),
+							enforcingCells = candidateCells
 						)
 					)
 				}
@@ -158,26 +190,35 @@ class HintProvider() {
 
 	//  Works on a Row or Column house
 	fun findClaimingCandidates(house: House, data: Array<SudokuCellData>): List<Hint> {
+		if (house !is House.Row && house !is House.Column) {
+			throw IllegalArgumentException("House must be a Row or Column")
+		}
 		val hints = mutableListOf<Hint>()
-		for (digit in 1..9) {
-			val candidateCells = house.cells.filter { it.number == 0 && digit in it.candidates }
+		val candidateDigits = house.cells.flatMap { it.candidates }.toSet()
+		for (digit in candidateDigits) {
+			val candidateCells = house.cells.filter { it.number == 0 }
 			if (candidateCells.isNotEmpty()) {
 				// Check if candidate cells belong to the same block (using block index)
 				val uniqueBlocks = candidateCells.map { (it.row / 3) * 3 + (it.col / 3) }.toSet()
 				if (uniqueBlocks.size == 1) {
 					val blockIndex = uniqueBlocks.first()
-					val blockCells = getBox(data, blockIndex / 3, blockIndex % 3)
+					val blockCells = getBox(data, blockIndex / 3, blockIndex % 3).filter {
+						!candidateCells.containsCell(it) && it.number == 0 && digit in it.candidates
+					}
 
-					blockCells.filter { cell ->
-						house.cells.none { it.row == cell.row && it.col == cell.col } &&
-								cell.number == 0 && digit in cell.candidates
-					}.forEach {
+					blockCells.forEach {
 						hints.add(
 							Hint(
 								row = it.row,
 								col = it.col,
 								value = digit,
-								type = HintType.ClaimingCandidate
+								type = HintType.ClaimingCandidate(
+									if (house is House.Row) GroupType.Row(
+										it.row
+									) else GroupType.Column(it.col)
+								),
+								explanationStrategy = ClaimingCandidateExplanation(),
+								enforcingCells = candidateCells
 							)
 						)
 					}

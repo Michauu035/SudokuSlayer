@@ -28,7 +28,7 @@ class CellManager(
 	fun resetGame() {
 		updateFilteredCells(
 			filterCondition = { !it.attributes.contains(CellAttributes.GENERATED) },
-			updater = { it.copy(number = 0, cornerNotes = emptySet(), attributes = emptySet()) }
+			updater = { it.copy(number = 0, cornerNotes = emptySet(), candidates = emptySet(), attributes = emptySet()) }
 		)
 		updateFilteredCells(
 			filterCondition = { it.attributes.contains(CellAttributes.GENERATED) },
