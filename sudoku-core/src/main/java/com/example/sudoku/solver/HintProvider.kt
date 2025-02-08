@@ -208,7 +208,6 @@ class HintProvider() {
 						}
 
 					blockCells.forEach {
-						println(it)
 						hints.add(
 							Hint(
 								row = it.row,

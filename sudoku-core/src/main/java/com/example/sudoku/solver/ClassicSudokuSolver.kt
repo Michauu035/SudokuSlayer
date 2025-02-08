@@ -1,7 +1,8 @@
 package com.example.sudoku.solver
 
+import com.example.sudoku.dlxalgorithm.DLXAlgorithm.solve
+import com.example.sudoku.dlxalgorithm.DLXAlgorithm.solveAll
 import com.example.sudoku.dlxalgorithm.DancingLinksMatrix
-import com.example.sudoku.dlxalgorithm.findSolution
 import com.example.sudoku.model.SudokuGrid
 import kotlin.random.Random
 
@@ -99,6 +100,21 @@ object ClassicSudokuSolver : SudokuSolver {
         return false
     }
 
+    fun solve(sudoku: SudokuGrid): Boolean {
+        val dlxMatrix = DancingLinksMatrix.fromSudoku(sudoku)
+        val result = mutableListOf<Int>()
+        dlxMatrix.rootNode.printNotEmptyNodes()
+
+        dlxMatrix.rootNode.solve { result.addAll(it) }
+
+        if (result.isEmpty()) return false
+
+        result.toSudokuGrid(sudoku).getArray().forEach { cell ->
+            sudoku[cell.row, cell.col] = cell.number
+        }
+        return true
+    }
+
     private fun getValidMoves(sudoku: SudokuGrid, row: Int, col: Int): List<Int> {
         val rowMask = numbersToMask(sudoku.getRow(row).map { it.number })
         val colMask = numbersToMask(sudoku.getCol(col).map { it.number })
@@ -112,9 +128,11 @@ object ClassicSudokuSolver : SudokuSolver {
 
     override fun hasUniqueSolution(sudoku: SudokuGrid): Boolean {
         val dancingLinksMatrix = DancingLinksMatrix.fromSudoku(sudoku)
-        val result = findSolution(dancingLinksMatrix.rootNode, 2)
+        val result = mutableListOf<List<Int>>()
 
-        return result.solutions.size == 1
+        dancingLinksMatrix.rootNode.solveAll().also { result.addAll(it) }
+
+        return result.size == 1
     }
 
     fun findBestCell(sudoku: SudokuGrid): Pair<Int, Int>? {
