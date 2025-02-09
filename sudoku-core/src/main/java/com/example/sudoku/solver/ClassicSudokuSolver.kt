@@ -1,8 +1,12 @@
 package com.example.sudoku.solver
 
+import com.example.sudoku.dlxalgorithm.DLXAlgorithm.solve
+import com.example.sudoku.dlxalgorithm.DLXAlgorithm.solveSuspend
 import com.example.sudoku.dlxalgorithm.DancingLinksMatrix
-import com.example.sudoku.dlxalgorithm.findSolution
 import com.example.sudoku.model.SudokuGrid
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.take
 import kotlin.random.Random
 
 object ClassicSudokuSolver : SudokuSolver {
@@ -42,16 +46,12 @@ object ClassicSudokuSolver : SudokuSolver {
         if (colMask and (1 shl num) != 0) return false
         
         val subgridMask = numbersToMask(sudoku.getSubgrid(rowNum, colNum).map { it.number })
-        if (subgridMask and (1 shl num) != 0) return false
-
-        return true
+        return subgridMask and (1 shl num) == 0
     }
 
     override fun checkGrid(sudoku: SudokuGrid): Boolean {
         for (i in 0..8) {
             if (!checkRow(sudoku.getRow(i).map { it.number }.toIntArray())) return false
-        }
-        for (i in 0..8) {
             if (!checkColumn(sudoku.getCol(i).map { it.number }.toIntArray())) return false
         }
         for (row in 0..6 step 3) {
@@ -68,11 +68,29 @@ object ClassicSudokuSolver : SudokuSolver {
         return validGrid && noZeros
     }
 
+    private fun isSolvable(sudoku: SudokuGrid): Boolean {
+        // Check if current state is valid
+        if (!checkGrid(sudoku)) return false
+        
+        // Check if each empty cell has at least one valid move
+        for (row in 0..8) {
+            for (col in 0..8) {
+                if (sudoku[row, col].number == 0) {
+                    val validMoves = getValidMoves(sudoku, row, col)
+                    if (validMoves.isEmpty()) return false
+                }
+            }
+        }
+        return true
+    }
+
     override fun fillGrid(sudoku: SudokuGrid): Boolean {
+        // First check if the grid is solvable
+        if (!isSolvable(sudoku)) return false
+        
         val bestCell = findBestCell(sudoku) ?: return true
         val (row, col) = bestCell
         
-        // Get valid moves for the cell
         val validMoves = getValidMoves(sudoku, row, col)
         if (validMoves.isEmpty()) return false
         
@@ -83,6 +101,21 @@ object ClassicSudokuSolver : SudokuSolver {
         }
         
         return false
+    }
+
+    fun solve(sudoku: SudokuGrid): Boolean {
+        val dlxMatrix = DancingLinksMatrix.fromSudoku(sudoku)
+        val result = mutableListOf<Int>()
+        dlxMatrix.rootNode.printNotEmptyNodes()
+
+        dlxMatrix.rootNode.solve { result.addAll(it) }
+
+        if (result.isEmpty()) return false
+
+        result.toSudokuGrid(sudoku).getArray().forEach { cell ->
+            sudoku[cell.row, cell.col] = cell.number
+        }
+        return true
     }
 
     private fun getValidMoves(sudoku: SudokuGrid, row: Int, col: Int): List<Int> {
@@ -96,11 +129,16 @@ object ClassicSudokuSolver : SudokuSolver {
         return (1..9).filter { validMask and (1 shl it) != 0 }
     }
 
-    override fun hasUniqueSolution(sudoku: SudokuGrid): Boolean {
+    override suspend fun hasUniqueSolution(sudoku: SudokuGrid): Boolean = coroutineScope {
         val dancingLinksMatrix = DancingLinksMatrix.fromSudoku(sudoku)
-        val result = findSolution(dancingLinksMatrix.rootNode, 2)
+        val result = mutableListOf<List<Int>>()
 
-        return result.solutions.size == 1
+        solveSuspend(dancingLinksMatrix.rootNode)
+            .consumeAsFlow()
+            .take(2)
+            .collect { result.add(it) }
+
+        result.size == 1
     }
 
     fun findBestCell(sudoku: SudokuGrid): Pair<Int, Int>? {

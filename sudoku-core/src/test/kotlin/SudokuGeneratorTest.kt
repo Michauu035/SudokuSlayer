@@ -1,6 +1,7 @@
 
 import com.example.sudoku.generator.ClassicSudokuGenerator
 import com.example.sudoku.solver.ClassicSudokuSolver
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -35,7 +36,7 @@ class SudokuGeneratorTest {
         "40, 8153123",
         "30, 8153123"
     )
-    fun removeCells(cellsToRemove: Int, seed: Long) {
+    fun removeCells(cellsToRemove: Int, seed: Long) = runBlocking {
         val grid = generator.createSudoku(cellsToRemove, seed)
         
         assertEquals(
@@ -47,7 +48,7 @@ class SudokuGeneratorTest {
 
     @Test
     @DisplayName("Should generate identical grids with same seed")
-    fun generateIdenticalGrids() {
+    fun generateIdenticalGrids() = runBlocking {
         val seed = 12345L
         val cellsToRemove = 53
         

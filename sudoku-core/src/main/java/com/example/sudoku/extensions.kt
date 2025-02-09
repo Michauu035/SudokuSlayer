@@ -8,3 +8,7 @@ fun symmetricDifference(lists: List<Set<Int>>) : Set<Int> {
 		.filter { it.value == 1 }
 		.keys
 }
+
+inline fun <T> ArrayDeque<T>.push(element: T) = addLast(element) // returns Unit
+
+inline fun <T> ArrayDeque<T>.pop() = removeLastOrNull()          // returns T?
