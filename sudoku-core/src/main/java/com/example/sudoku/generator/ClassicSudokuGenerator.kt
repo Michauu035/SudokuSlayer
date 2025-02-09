@@ -5,7 +5,7 @@ import com.example.sudoku.model.SudokuGrid.Companion.withSeed
 import com.example.sudoku.solver.ClassicSudokuSolver
 
 class ClassicSudokuGenerator : SudokuGenerator {
-    override fun createSudoku(cellsToRemove: Int, seed: Long): SudokuGrid {
+    override suspend fun createSudoku(cellsToRemove: Int, seed: Long): SudokuGrid {
         var sudoku = SudokuGrid().withSeed(seed)
         ClassicSudokuSolver.fillGrid(sudoku)
         sudoku = removeCells(sudoku, cellsToRemove)
@@ -21,7 +21,7 @@ class ClassicSudokuGenerator : SudokuGenerator {
 
     // TODO: remove in batches to improve performance
 
-    override fun removeCells(
+    override suspend fun removeCells(
         sudoku: SudokuGrid,
         cellsToRemove: Int,
     ): SudokuGrid {

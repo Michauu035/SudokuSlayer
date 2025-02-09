@@ -14,7 +14,7 @@ interface SudokuSolver {
     fun isValidMove(sudoku: SudokuGrid, rowNum: Int, colNum: Int, num: Int): Boolean
     fun checkGrid(sudoku: SudokuGrid): Boolean
     fun isValidSolution(sudokuGrid: SudokuGrid): Boolean
-    fun hasUniqueSolution(sudokuGrid: SudokuGrid): Boolean
+    suspend fun hasUniqueSolution(sudokuGrid: SudokuGrid): Boolean
     fun fillGrid(sudokuGrid: SudokuGrid) : Boolean
 }
 

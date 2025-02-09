@@ -1,9 +1,12 @@
 package com.example.sudoku.solver
 
 import com.example.sudoku.dlxalgorithm.DLXAlgorithm.solve
-import com.example.sudoku.dlxalgorithm.DLXAlgorithm.solveAll
+import com.example.sudoku.dlxalgorithm.DLXAlgorithm.solveSuspend
 import com.example.sudoku.dlxalgorithm.DancingLinksMatrix
 import com.example.sudoku.model.SudokuGrid
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.take
 import kotlin.random.Random
 
 object ClassicSudokuSolver : SudokuSolver {
@@ -126,13 +129,16 @@ object ClassicSudokuSolver : SudokuSolver {
         return (1..9).filter { validMask and (1 shl it) != 0 }
     }
 
-    override fun hasUniqueSolution(sudoku: SudokuGrid): Boolean {
+    override suspend fun hasUniqueSolution(sudoku: SudokuGrid): Boolean = coroutineScope {
         val dancingLinksMatrix = DancingLinksMatrix.fromSudoku(sudoku)
         val result = mutableListOf<List<Int>>()
 
-        dancingLinksMatrix.rootNode.solveAll().also { result.addAll(it) }
+        solveSuspend(dancingLinksMatrix.rootNode)
+            .consumeAsFlow()
+            .take(2)
+            .collect { result.add(it) }
 
-        return result.size == 1
+        result.size == 1
     }
 
     fun findBestCell(sudoku: SudokuGrid): Pair<Int, Int>? {

@@ -1,6 +1,7 @@
 import com.example.sudoku.model.SudokuGrid
 import com.example.sudoku.solver.ClassicSudokuSolver
 import com.example.sudoku.solver.createConstraints
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -173,21 +174,41 @@ class SudokuSolverTest {
 	inner class UniqueSolutionValidation {
 		@Test
 		@DisplayName("Should detect non-unique solution")
-		fun detectNonUniqueSolution() {
+		fun detectNonUniqueSolution() = runBlocking {
 			val grid = SudokuGrid.fromIntArray(
 				arrayOf(
-					intArrayOf(0, 0, 0, 0, 0, 0, 0, 1, 2),
-					intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-					intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-					intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-					intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-					intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-					intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-					intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0),
-					intArrayOf(0, 0, 0, 0, 0, 0, 0, 0, 0)
+					intArrayOf(9,2,6,5,7,1,4,8,3),
+					intArrayOf(3,5,1,4,8,6,2,7,9),
+					intArrayOf(8,7,4,9,2,3,5,1,6),
+					intArrayOf(5,8,2,3,6,7,1,9,4),
+					intArrayOf(1,4,9,2,5,8,3,6,7),
+					intArrayOf(7,6,3,1,0,0,8,2,5),
+					intArrayOf(2,3,8,7,0,0,6,5,1),
+					intArrayOf(6,1,7,8,3,5,9,4,2),
+					intArrayOf(4,9,5,6,1,2,7,3,8)
 				)
 			)
 			assertEquals(false, ClassicSudokuSolver.hasUniqueSolution(grid))
+		}
+
+		@Test
+		@DisplayName("Should detect unique solution")
+		fun detectUniqueSolution() = runBlocking {
+			val grid = SudokuGrid.fromIntArray(
+				arrayOf(
+					intArrayOf(5, 3, 0, 0, 7, 0, 0, 0, 0),
+					intArrayOf(6, 0, 0, 1, 9, 5, 0, 0, 0),
+					intArrayOf(0, 9, 8, 0, 0, 0, 0, 6, 0),
+					intArrayOf(8, 0, 0, 0, 6, 0, 0, 0, 3),
+					intArrayOf(4, 0, 0, 8, 0, 3, 0, 0, 1),
+					intArrayOf(7, 0, 0, 0, 2, 0, 0, 0, 6),
+					intArrayOf(0, 6, 0, 0, 0, 0, 2, 8, 0),
+					intArrayOf(0, 0, 0, 4, 1, 9, 0, 0, 5),
+					intArrayOf(0, 0, 0, 0, 8, 0, 0, 7, 9)
+				)
+			)
+
+			assertEquals(true, ClassicSudokuSolver.hasUniqueSolution(grid))
 		}
 	}
 

@@ -16,6 +16,7 @@ kotlin {
 
 dependencies {
 	implementation(libs.annotations)
+	implementation(libs.kotlinx.coroutines.core)
 
 	testImplementation(libs.junit.jupiter)
 	testImplementation(libs.junit.jupiter.api)

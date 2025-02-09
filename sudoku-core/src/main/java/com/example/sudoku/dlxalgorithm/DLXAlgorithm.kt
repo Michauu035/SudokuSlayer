@@ -5,10 +5,13 @@ import com.example.sudoku.dlxalgorithm.model.DataNode
 import com.example.sudoku.dlxalgorithm.model.HeaderNode
 import com.example.sudoku.dlxalgorithm.model.RootNode
 import com.example.sudoku.dlxalgorithm.model.findBestColumn
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.produce
 import java.util.Stack
 
 object DLXAlgorithm {
-	fun RootNode.solve(collect: (ArrayList<Int>) -> Unit) {
+	fun RootNode.solve(collect: (ArrayList<Int>) -> Boolean) {
 		solveProblem(collect = collect)
 	}
 
@@ -17,9 +20,16 @@ object DLXAlgorithm {
 			solveProblem { add(it) }
 		}
 
+	@OptIn(ExperimentalCoroutinesApi::class)
+	fun CoroutineScope.solveSuspend(rootNode: RootNode) = produce<List<Int>>(capacity = 2) {
+		rootNode.solveAll().forEach {
+			channel.send(it)
+		}
+	}
+
 	private fun RootNode.solveProblem(
 		solution: Stack<Int> = Stack<Int>(),
-		collect: (ArrayList<Int>) -> Unit
+		collect: (ArrayList<Int>) -> Boolean
 	) {
 		val header: HeaderNode? = findBestColumn()
 		when(header) {
